@@ -13896,6 +13896,9 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
 
   <script>
     (function () {
+      var activeSpeechState = null;
+      var currentAudioCard = null;
+
       // Elements
       const toggleEngBtn = document.getElementById('toggleEngBtn');
       const engStatusText = document.getElementById('engStatusText');
@@ -14103,7 +14106,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
       }
 
       function activateNavTarget(rawTarget, shouldScrollTop, toggleSubIfSame) {
-        if (typeof stopCardAudio === 'function') {
+        if (activeSpeechState && typeof stopCardAudio === 'function') {
           stopCardAudio(false);
         }
         let targetSecId = rawTarget;
@@ -14278,6 +14281,50 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         });
       });
 
+      // Delegated Navigation Fallback (Guarantees every link/button always works)
+      document.addEventListener('click', function (e) {
+        // A. Jump buttons (Table of Contents cards)
+        const jBtn = e.target.closest('.jump-btn, [data-jump-section]');
+        if (jBtn) {
+          const sec = jBtn.getAttribute('data-jump-section');
+          if (sec) {
+            e.preventDefault();
+            activateNavTarget(sec, true, false);
+            return;
+          }
+        }
+
+        // B. Page step buttons (Prev / Next page)
+        const pBtn = e.target.closest('.page-step-btn, [data-page-step]');
+        if (pBtn) {
+          const step = pBtn.getAttribute('data-page-step');
+          if (step) {
+            e.preventDefault();
+            activateNavTarget(step, true, false);
+            return;
+          }
+        }
+
+        // C. Nav tabs (Chapter numbers, sidebar items)
+        const nTab = e.target.closest('.nav-tab, [data-target]');
+        if (nTab && !nTab.closest('.card-actions-wrapper') && !nTab.classList.contains('bookmark-toggle-btn') && !nTab.classList.contains('card-audio-btn')) {
+          const tgt = nTab.getAttribute('data-target');
+          if (tgt) {
+            e.preventDefault();
+            const isSidebarMainChapterHeader = Boolean(
+              window.innerWidth < 1024 &&
+              nTab.closest('#chapterSidebar') &&
+              !nTab.classList.contains('ch-num-btn') &&
+              tgt.endsWith('-all') &&
+              tgt !== 'contents-all'
+            );
+            window.__keepSidebarOpenOnce = isSidebarMainChapterHeader;
+            activateNavTarget(tgt, !isSidebarMainChapterHeader, true);
+            return;
+          }
+        }
+      });
+
       // Page Step buttons (Prev / Next page)
       document.querySelectorAll('.page-step-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -14359,8 +14406,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
       // -------------------------------------------------------------------
       // 4. Feature 1: Integrated Lesson Voice Reader (பாடப்பகுதி வாரியான குரல் வாசிப்பு வசதி)
       // -------------------------------------------------------------------
-      let currentAudioCard = null;
-      let activeSpeechState = null; // { card, btn, chunks, index, paused }
+      // Note: activeSpeechState and currentAudioCard are declared at the top of the scope
       const btnAudioReader = document.getElementById('btnAudioReader');
       const audioReaderIcon = document.getElementById('audioReaderIcon');
       const audioReaderLabel = document.getElementById('audioReaderLabel');
@@ -14393,11 +14439,14 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         currentAudioCard = null;
 
         // Sync top nav bar reader button
-        if (audioReaderIcon) audioReaderIcon.textContent = '🔊';
-        if (audioReaderLabel) audioReaderLabel.textContent = 'குரல் வாசிப்பு';
-        if (btnAudioReader) {
-          btnAudioReader.classList.remove('bg-amber-400', 'text-emerald-950', 'bg-emerald-600', 'text-white');
-          btnAudioReader.classList.add('bg-emerald-800', 'text-amber-200');
+        const _arIcon = document.getElementById('audioReaderIcon');
+        const _arLabel = document.getElementById('audioReaderLabel');
+        const _arBtn = document.getElementById('btnAudioReader');
+        if (_arIcon) _arIcon.textContent = '🔊';
+        if (_arLabel) _arLabel.textContent = 'குரல் வாசிப்பு';
+        if (_arBtn) {
+          _arBtn.classList.remove('bg-amber-400', 'text-emerald-950', 'bg-emerald-600', 'text-white');
+          _arBtn.classList.add('bg-emerald-800', 'text-amber-200');
         }
       }
 
@@ -14484,8 +14533,8 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
             btn.innerHTML = '<span class="audio-state-icon animate-pulse">⏸️</span><span class="audio-state-text">இடைநிறுத்து</span>';
             btn.title = 'ஒலிப்பினை இடைநிறுத்த (Pause Reading)';
 
-            if (audioReaderIcon) audioReaderIcon.textContent = '⏸️';
-            if (audioReaderLabel) audioReaderLabel.textContent = 'இடைநிறுத்து';
+            const _ic = document.getElementById('audioReaderIcon'); if (_ic) _ic.textContent = '⏸️';
+            const _lb = document.getElementById('audioReaderLabel'); if (_lb) _lb.textContent = 'இடைநிறுத்து';
 
             if (window.speechSynthesis.paused) {
               try { window.speechSynthesis.resume(); } catch (e) {}
@@ -14504,8 +14553,8 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
             btn.innerHTML = '<span class="audio-state-icon">▶️</span><span class="audio-state-text">தொடர்க</span>';
             btn.title = 'வாசிப்பைத் தொடர (Resume Reading)';
 
-            if (audioReaderIcon) audioReaderIcon.textContent = '▶️';
-            if (audioReaderLabel) audioReaderLabel.textContent = 'தொடர்க';
+            const _ic = document.getElementById('audioReaderIcon'); if (_ic) _ic.textContent = '▶️';
+            const _lb = document.getElementById('audioReaderLabel'); if (_lb) _lb.textContent = 'தொடர்க';
           }
           return;
         }
@@ -14537,8 +14586,8 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         btn.innerHTML = '<span class="audio-state-icon animate-pulse">⏸️</span><span class="audio-state-text">இடைநிறுத்து</span>';
         btn.title = 'ஒலிப்பினை இடைநிறுத்த (Pause Reading)';
 
-        if (audioReaderIcon) audioReaderIcon.textContent = '⏹️';
-        if (audioReaderLabel) audioReaderLabel.textContent = 'நிறுத்து';
+        const _ic = document.getElementById('audioReaderIcon'); if (_ic) _ic.textContent = '⏹️';
+        const _lb = document.getElementById('audioReaderLabel'); if (_lb) _lb.textContent = 'நிறுத்து';
         if (btnAudioReader) {
           btnAudioReader.classList.remove('bg-emerald-800', 'text-amber-200');
           btnAudioReader.classList.add('bg-amber-400', 'text-emerald-950');
