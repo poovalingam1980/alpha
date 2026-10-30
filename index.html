@@ -929,7 +929,135 @@
           <span id="audioReaderIcon">🔊</span><span class="hidden sm:inline" id="audioReaderLabel">குரல் வாசிப்பு</span>
         </button>
 
-        <!-- Quick Revision Flashcards Modal Button -->
+        <!-- Tamil Teacher Voice Settings Button -->
+        <button
+          id="btnAudioSettings"
+          type="button"
+          title="தமிழகப் பெண் ஆசிரியை குரல் அமைப்புகள் (Tamil Teacher Voice Settings)"
+          class="shrink-0 whitespace-nowrap px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-800 hover:bg-emerald-700 text-amber-200 border border-emerald-600 transition flex items-center gap-1.5"
+        >
+          <span>👩‍🏫</span><span class="hidden md:inline">ஆசிரியை குரல்</span>
+        </button>
+
+        <!-- Tamil Teacher Voice Settings Modal (தமிழகப் பெண் ஆசிரியை குரல் அமைப்புகள்) -->
+  <div
+    id="audioSettingsModal"
+    class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 no-print"
+  >
+    <div class="bg-white dark:bg-slate-900 w-full max-w-xl max-h-[90vh] rounded-2xl shadow-2xl border-2 border-emerald-600 flex flex-col overflow-hidden">
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white flex items-center justify-between gap-3 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">👩‍🏫</span>
+          <div>
+            <h3 class="text-sm sm:text-base font-extrabold text-amber-300">தமிழகப் பெண் ஆசிரியை குரல் அமைப்புகள்</h3>
+            <p class="text-[11px] text-emerald-100 font-medium">Tamil Female Teacher Voice &amp; Reading Engine</p>
+          </div>
+        </div>
+        <button
+          id="closeAudioSettingsBtn"
+          type="button"
+          class="w-8 h-8 rounded-full bg-emerald-800 hover:bg-emerald-700 text-emerald-100 hover:text-white flex items-center justify-center font-bold text-lg transition"
+          title="மூடுக"
+        >×</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 overflow-y-auto space-y-4 text-xs sm:text-sm text-slate-800 dark:text-slate-100">
+        <!-- Voice Detection Status Card -->
+        <div class="p-3.5 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50/80 dark:bg-emerald-950/40">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="font-bold text-emerald-950 dark:text-amber-300 flex items-center gap-1.5">
+              <span>🎙️</span> தற்போது இயக்கப்பட்டுள்ள குரல்:
+            </span>
+            <span id="voiceStatusBadge" class="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-200 dark:bg-emerald-800 text-emerald-950 dark:text-emerald-100">
+              கண்டறியப்படுகிறது...
+            </span>
+          </div>
+          <select
+            id="tamilVoiceSelect"
+            class="w-full p-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-semibold focus:ring-2 focus:ring-emerald-500"
+          >
+            <option value="">தானியங்கி தேர்வு (பெண் ஆசிரியை குரலுக்கு முன்னுரிமை)</option>
+          </select>
+          <div id="noTamilVoiceWarning" class="hidden mt-2 p-2.5 rounded-lg bg-amber-100 dark:bg-amber-950/70 border border-amber-400 text-amber-950 dark:text-amber-200 text-xs">
+            ⚠️ <strong>கவனிக்க:</strong> உங்கள் சாதனத்தில் நேரடி தமிழ் குரல் பேக் நிறுவப்படவில்லை. ஆங்கில குரல் தமிழ் எழுத்துக்களைப் படிக்காது. கீழே உள்ள எளிய வழிகாட்டியைப் பயன்படுத்தி உங்கள் போன் அல்லது கணினியில் இலவசமாகத் தமிழ் குரலை இயக்கலாம்.
+          </div>
+        </div>
+
+        <!-- Reading Mode Radio Buttons -->
+        <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
+          <span class="font-bold text-slate-900 dark:text-white block mb-2">📖 வாசிப்பு முறை (Reading Mode):</span>
+          <div class="space-y-2">
+            <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-emerald-50/50">
+              <input type="radio" name="speechModeRadio" value="pure_tamil" class="mt-0.5 accent-emerald-600" checked>
+              <div>
+                <strong class="text-emerald-900 dark:text-emerald-300 font-bold block">தூய தமிழ் ஆசிரியை வாசிப்பு (பரிந்துரைக்கப்படுகிறது)</strong>
+                <span class="text-[11px] text-slate-600 dark:text-slate-300">ஆங்கில அடைப்புக் குறி சொற்களைத் தவிர்த்து, முழுமையான பாடப்பகுதியையும் தெளிவான தமிழ் ஆசிரியை நடையில் வாசிக்கும்.</span>
+              </div>
+            </label>
+            <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-emerald-50/50">
+              <input type="radio" name="speechModeRadio" value="bilingual" class="mt-0.5 accent-emerald-600">
+              <div>
+                <strong class="text-slate-900 dark:text-white font-bold block">இருமொழி வாசிப்பு (Bilingual)</strong>
+                <span class="text-[11px] text-slate-600 dark:text-slate-300">தமிழோடு சேர்த்து ஆங்கிலக் கலைச்சொற்களையும் (Scientific Terms) வாசிக்கும்.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Voice Rate & Pitch Controls -->
+        <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="voiceRateRange" class="block font-bold text-slate-900 dark:text-white text-xs mb-1">
+              🐢 வாசிப்பு வேகம்: <span id="voiceRateVal" class="text-emerald-700 dark:text-amber-300">0.9x (நிதானம்)</span>
+            </label>
+            <input type="range" id="voiceRateRange" min="0.75" max="1.15" step="0.05" value="0.90" class="w-full accent-emerald-600">
+          </div>
+          <div>
+            <label for="voicePitchRange" class="block font-bold text-slate-900 dark:text-white text-xs mb-1">
+              🎶 ஆசிரியை குரல் சுருதி: <span id="voicePitchVal" class="text-emerald-700 dark:text-amber-300">1.15 (பெண் குரல்)</span>
+            </label>
+            <input type="range" id="voicePitchRange" min="0.9" max="1.35" step="0.05" value="1.15" class="w-full accent-emerald-600">
+          </div>
+        </div>
+
+        <!-- Test Speech Button -->
+        <button
+          id="btnTestTeacherVoice"
+          type="button"
+          class="w-full py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white shadow-md transition flex items-center justify-center gap-2"
+        >
+          <span>🔊</span> <span>மாதிரி ஆசிரியை குரலைக் கேட்க (Test Teacher Voice)</span>
+        </button>
+
+        <!-- OS Voice Enable Instructions Accordion -->
+        <details class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <summary class="font-bold cursor-pointer text-xs text-emerald-800 dark:text-amber-300 select-none">
+            💡 உங்கள் சாதனத்தில் உயர்தர தமிழ் பெண் குரலை எவ்வாறு இயக்குவது? (வழிகாட்டி)
+          </summary>
+          <div class="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-700 text-[11px] leading-relaxed text-slate-600 dark:text-slate-300 space-y-2">
+            <p><strong>📱 Android மொபைல்:</strong> Settings ➔ Accessibility (அணுகல்தன்மை) ➔ Text-to-speech output ➔ Preferred engine (Google Speech) ➔ Settings ஐகான் ➔ Install voice data ➔ Tamil ➔ பதிவிறக்கம் செய்யவும்.</p>
+            <p><strong>💻 Windows கணினி (Edge / Chrome):</strong> Settings ➔ Time &amp; Language ➔ Speech ➔ Manage voices ➔ Add voices ➔ Tamil (India) என்பதைத் தேர்ந்தெடுத்து "Microsoft Kani (இயற்கையான பெண் குரல்)"-ஐ நிறுவவும்.</p>
+            <p><strong>🍏 iPhone / iPad / Mac:</strong> Settings ➔ Accessibility ➔ Spoken Content ➔ Voices ➔ Tamil ➔ "Vani (Enhanced)" பெண் குரலைத் தேர்ந்தெடுக்கவும்.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-3.5 bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+        <button
+          id="saveAudioSettingsBtn"
+          type="button"
+          class="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-800 hover:bg-emerald-700 text-white shadow transition"
+        >
+          அமைப்புகளைச் சேமி (Save Settings)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Revision Flashcards Modal Button -->
         <button
           id="btnOpenFlashcards"
           type="button"
@@ -14404,24 +14532,139 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
       }
 
       // -------------------------------------------------------------------
-      // 4. Feature 1: Integrated Lesson Voice Reader (பாடப்பகுதி வாரியான குரல் வாசிப்பு வசதி)
+      // 4. Feature 1: Integrated Lesson Voice Reader (தமிழகப் பெண் ஆசிரியை குரல் வாசிப்பு வசதி)
       // -------------------------------------------------------------------
       // Note: activeSpeechState and currentAudioCard are declared at the top of the scope
       const btnAudioReader = document.getElementById('btnAudioReader');
-      const audioReaderIcon = document.getElementById('audioReaderIcon');
-      const audioReaderLabel = document.getElementById('audioReaderLabel');
+      const btnAudioSettings = document.getElementById('btnAudioSettings');
+      const audioSettingsModal = document.getElementById('audioSettingsModal');
+      const closeAudioSettingsBtn = document.getElementById('closeAudioSettingsBtn');
+      const saveAudioSettingsBtn = document.getElementById('saveAudioSettingsBtn');
+      const tamilVoiceSelect = document.getElementById('tamilVoiceSelect');
+      const voiceStatusBadge = document.getElementById('voiceStatusBadge');
+      const noTamilVoiceWarning = document.getElementById('noTamilVoiceWarning');
+      const voiceRateRange = document.getElementById('voiceRateRange');
+      const voiceRateVal = document.getElementById('voiceRateVal');
+      const voicePitchRange = document.getElementById('voicePitchRange');
+      const voicePitchVal = document.getElementById('voicePitchVal');
+      const btnTestTeacherVoice = document.getElementById('btnTestTeacherVoice');
+      const speechModeRadios = document.querySelectorAll('input[name="speechModeRadio"]');
 
-      function getTamilVoice() {
+      let speechReadingMode = 'pure_tamil'; // 'pure_tamil' (default) | 'bilingual'
+      let speechPitch = 1.15; // Tuned for clear, warm female teacher tone
+      let speechRate = 0.90;  // Measured educational pace
+      let selectedTamilVoiceURI = '';
+
+      try {
+        const savedMode = localStorage.getItem('ncert12_speech_mode');
+        if (savedMode === 'pure_tamil' || savedMode === 'bilingual') speechReadingMode = savedMode;
+        const savedPitch = localStorage.getItem('ncert12_speech_pitch');
+        if (savedPitch) speechPitch = parseFloat(savedPitch) || 1.15;
+        const savedRate = localStorage.getItem('ncert12_speech_rate');
+        if (savedRate) speechRate = parseFloat(savedRate) || 0.90;
+        const savedVoice = localStorage.getItem('ncert12_speech_voice');
+        if (savedVoice) selectedTamilVoiceURI = savedVoice;
+      } catch (e) {}
+
+      function getAvailableTamilVoices() {
+        if (!('speechSynthesis' in window)) return [];
+        const allVoices = window.speechSynthesis.getVoices() || [];
+        return allVoices.filter(function (v) {
+          const l = (v.lang || '').toLowerCase().replace('_', '-');
+          const n = (v.name || '').toLowerCase();
+          return l.startsWith('ta') || n.includes('tamil') || n.includes('தமிழ்');
+        });
+      }
+
+      function getTamilVoice(preferFemale) {
         if (!('speechSynthesis' in window)) return null;
-        const voices = window.speechSynthesis.getVoices() || [];
-        const taVoice = voices.find(function (v) {
-          return v.lang && (v.lang === 'ta-IN' || v.lang.startsWith('ta') || v.lang.startsWith('tam'));
+        const tamilVoices = getAvailableTamilVoices();
+        if (tamilVoices.length === 0) return null;
+
+        // 1. If user selected a specific voice
+        if (selectedTamilVoiceURI) {
+          const match = tamilVoices.find(function (v) {
+            return (v.voiceURI === selectedTamilVoiceURI) || (v.name === selectedTamilVoiceURI);
+          });
+          if (match) return match;
+        }
+
+        // 2. Prioritize natural Tamil Female Teacher voices
+        if (preferFemale !== false) {
+          // Microsoft Kani (Natural Tamil Female)
+          const kani = tamilVoices.find(function (v) { return v.name.toLowerCase().includes('kani'); });
+          if (kani) return kani;
+
+          // Apple Vani (Tamil Female)
+          const vani = tamilVoices.find(function (v) { return v.name.toLowerCase().includes('vani'); });
+          if (vani) return vani;
+
+          // Google தமிழ் (Android/Chrome Female)
+          const googleTa = tamilVoices.find(function (v) {
+            const s = (v.name + ' ' + v.voiceURI).toLowerCase();
+            return s.includes('google') || s.includes('தமிழ்');
+          });
+          if (googleTa) return googleTa;
+
+          // Any female identifier
+          const anyFemale = tamilVoices.find(function (v) {
+            const s = (v.name + ' ' + v.voiceURI).toLowerCase();
+            return s.includes('female') || s.includes('taf') || s.includes('woman') || s.includes('பெண்');
+          });
+          if (anyFemale) return anyFemale;
+        }
+
+        // 3. Fallback to first available Tamil voice
+        return tamilVoices[0];
+      }
+
+      function updateVoiceSettingsUI() {
+        if (!tamilVoiceSelect) return;
+        const tamilVoices = getAvailableTamilVoices();
+        const activeVoice = getTamilVoice(true);
+
+        tamilVoiceSelect.innerHTML = '<option value="">தானியங்கி தேர்வு (பெண் ஆசிரியை குரலுக்கு முன்னுரிமை)</option>';
+        tamilVoices.forEach(function (v) {
+          const opt = document.createElement('option');
+          opt.value = v.voiceURI || v.name;
+          const isKani = v.name.toLowerCase().includes('kani');
+          const isVani = v.name.toLowerCase().includes('vani');
+          const isGoogle = v.name.toLowerCase().includes('google') || v.name.includes('தமிழ்');
+          let label = v.name + ' (' + v.lang + ')';
+          if (isKani) label = '👩‍🏫 Microsoft Kani (இயற்கையான தமிழ் பெண் குரல்)';
+          else if (isVani) label = '👩‍🏫 Apple Vani (தமிழ் பெண் குரல்)';
+          else if (isGoogle) label = '👩‍🏫 Google தமிழ் (இயற்கையான பெண் குரல்)';
+          opt.textContent = label;
+          if (selectedTamilVoiceURI && (v.voiceURI === selectedTamilVoiceURI || v.name === selectedTamilVoiceURI)) {
+            opt.selected = true;
+          }
+          tamilVoiceSelect.appendChild(opt);
         });
-        if (taVoice) return taVoice;
-        const inVoice = voices.find(function (v) {
-          return v.lang && v.lang.includes('IN');
+
+        if (voiceStatusBadge) {
+          if (activeVoice) {
+            let badgeText = '✅ ' + activeVoice.name;
+            if (activeVoice.name.toLowerCase().includes('kani')) badgeText = '✅ Microsoft Kani (பெண் ஆசிரியை)';
+            else if (activeVoice.name.toLowerCase().includes('vani')) badgeText = '✅ Apple Vani (பெண் ஆசிரியை)';
+            else if (activeVoice.name.toLowerCase().includes('google') || activeVoice.name.includes('தமிழ்')) badgeText = '✅ Google தமிழ் (பெண் குரல்)';
+            voiceStatusBadge.textContent = badgeText;
+            voiceStatusBadge.className = 'px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-200 dark:bg-emerald-800 text-emerald-950 dark:text-emerald-100';
+            if (noTamilVoiceWarning) noTamilVoiceWarning.classList.add('hidden');
+          } else {
+            voiceStatusBadge.textContent = '⚠️ நேரடி குரல் இல்லை';
+            voiceStatusBadge.className = 'px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-200 dark:bg-amber-800 text-amber-950 dark:text-amber-100';
+            if (noTamilVoiceWarning) noTamilVoiceWarning.classList.remove('hidden');
+          }
+        }
+
+        if (voiceRateRange) voiceRateRange.value = speechRate;
+        if (voiceRateVal) voiceRateVal.textContent = speechRate.toFixed(2) + 'x (' + (speechRate <= 0.9 ? 'நிதானம்' : 'இயல்பு') + ')';
+        if (voicePitchRange) voicePitchRange.value = speechPitch;
+        if (voicePitchVal) voicePitchVal.textContent = speechPitch.toFixed(2) + 'x (' + (speechPitch >= 1.1 ? 'பெண் குரல்' : 'இயல்பு') + ')';
+
+        speechModeRadios.forEach(function (r) {
+          r.checked = (r.value === speechReadingMode);
         });
-        return inVoice || null;
       }
 
       function stopCardAudio(resetUIOnly) {
@@ -14456,7 +14699,24 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         clone.querySelectorAll('.no-print, script, style, svg, img, button, .bookmark-toggle-btn, .card-audio-btn').forEach(function (el) {
           el.remove();
         });
-        let text = (clone.innerText || clone.textContent || '')
+
+        // Pure Tamil Teacher Mode: remove English parenthetical terms (.eng-paren)
+        if (speechReadingMode === 'pure_tamil') {
+          clone.querySelectorAll('.eng-paren').forEach(function (el) {
+            el.remove();
+          });
+        }
+
+        let text = (clone.innerText || clone.textContent || '');
+
+        if (speechReadingMode === 'pure_tamil') {
+          // Remove leftover English words in parentheses like (DNA) or (Figure 1.1)
+          text = text.replace(/\([A-Za-z0-9\s,\.\-–\/]+\)/g, ' ');
+          // Remove standalone figure references
+          text = text.replace(/படம்\s*\d+[\.\d]*[a-z]*/gi, '');
+        }
+
+        text = text
           .replace(/\[\s*Image\s*[^\]]*\]/gi, '')
           .replace(/https?:\/\/\S+/g, '')
           .replace(/[•★⭐📌\(\)\{\}\[\]\<\>\|]/g, ' ')
@@ -14493,11 +14753,15 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
 
         const chunkText = activeSpeechState.chunks[activeSpeechState.index];
         const utter = new SpeechSynthesisUtterance(chunkText);
-        utter.lang = 'ta-IN';
-        const v = getTamilVoice();
-        if (v) utter.voice = v;
-        utter.rate = 0.95;
-        utter.pitch = 1.0;
+        utter.lang = 'ta-IN'; // Mandatory Tamil language tag
+
+        const v = getTamilVoice(true);
+        if (v) {
+          utter.voice = v;
+        }
+
+        utter.pitch = speechPitch; // 1.15 for Tamil female teacher voice
+        utter.rate = speechRate;   // 0.90 for clear educational teaching
 
         utter.onend = function () {
           if (!activeSpeechState || activeSpeechState.paused) return;
@@ -14615,11 +14879,87 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         });
       }
 
+      // Audio Settings Modal Listeners
+      if (btnAudioSettings && audioSettingsModal) {
+        btnAudioSettings.addEventListener('click', function () {
+          updateVoiceSettingsUI();
+          audioSettingsModal.classList.remove('hidden');
+        });
+      }
+      if (closeAudioSettingsBtn && audioSettingsModal) {
+        closeAudioSettingsBtn.addEventListener('click', function () {
+          audioSettingsModal.classList.add('hidden');
+        });
+      }
+      if (audioSettingsModal) {
+        audioSettingsModal.addEventListener('click', function (e) {
+          if (e.target === audioSettingsModal) audioSettingsModal.classList.add('hidden');
+        });
+      }
+      if (saveAudioSettingsBtn && audioSettingsModal) {
+        saveAudioSettingsBtn.addEventListener('click', function () {
+          if (tamilVoiceSelect) selectedTamilVoiceURI = tamilVoiceSelect.value;
+          if (voicePitchRange) speechPitch = parseFloat(voicePitchRange.value) || 1.15;
+          if (voiceRateRange) speechRate = parseFloat(voiceRateRange.value) || 0.90;
+          const selectedRadio = document.querySelector('input[name="speechModeRadio"]:checked');
+          if (selectedRadio) speechReadingMode = selectedRadio.value;
+
+          try {
+            localStorage.setItem('ncert12_speech_mode', speechReadingMode);
+            localStorage.setItem('ncert12_speech_pitch', speechPitch.toString());
+            localStorage.setItem('ncert12_speech_rate', speechRate.toString());
+            localStorage.setItem('ncert12_speech_voice', selectedTamilVoiceURI);
+          } catch (e) {}
+
+          audioSettingsModal.classList.add('hidden');
+        });
+      }
+
+      if (voiceRateRange && voiceRateVal) {
+        voiceRateRange.addEventListener('input', function () {
+          const val = parseFloat(voiceRateRange.value);
+          voiceRateVal.textContent = val.toFixed(2) + 'x (' + (val <= 0.9 ? 'நிதானம்' : 'இயல்பு') + ')';
+        });
+      }
+      if (voicePitchRange && voicePitchVal) {
+        voicePitchRange.addEventListener('input', function () {
+          const val = parseFloat(voicePitchRange.value);
+          voicePitchVal.textContent = val.toFixed(2) + 'x (' + (val >= 1.1 ? 'பெண் குரல்' : 'இயல்பு') + ')';
+        });
+      }
+
+      if (btnTestTeacherVoice) {
+        btnTestTeacherVoice.addEventListener('click', function () {
+          if (!('speechSynthesis' in window)) return;
+          window.speechSynthesis.cancel();
+          const testText = "வணக்கம் மாணவர்களே! நான் உங்கள் உயிரியல் ஆசிரியை. 12-ஆம் வகுப்பு உயிரியல் பாடப்பகுதிகளை உங்களுக்காக தமிழில் தெளிவாக வாசிக்கிறேன்.";
+          const utter = new SpeechSynthesisUtterance(testText);
+          utter.lang = 'ta-IN';
+          const testPitch = voicePitchRange ? (parseFloat(voicePitchRange.value) || 1.15) : speechPitch;
+          const testRate = voiceRateRange ? (parseFloat(voiceRateRange.value) || 0.90) : speechRate;
+          utter.pitch = testPitch;
+          utter.rate = testRate;
+
+          let v = null;
+          if (tamilVoiceSelect && tamilVoiceSelect.value) {
+            const allV = getAvailableTamilVoices();
+            v = allV.find(function (item) { return (item.voiceURI === tamilVoiceSelect.value || item.name === tamilVoiceSelect.value); });
+          }
+          if (!v) v = getTamilVoice(true);
+          if (v) utter.voice = v;
+
+          window.speechSynthesis.speak(utter);
+        });
+      }
+
       if ('speechSynthesis' in window && window.speechSynthesis.onvoiceschanged !== undefined) {
         window.speechSynthesis.onvoiceschanged = function () {
-          getTamilVoice();
+          getTamilVoice(true);
+          updateVoiceSettingsUI();
         };
       }
+      // Initial voice update
+      updateVoiceSettingsUI();
 
       // -------------------------------------------------------------------
       // 5. Feature 2: Quick Revision Flashcards Modal (திருப்புதல் அட்டைகள்)
