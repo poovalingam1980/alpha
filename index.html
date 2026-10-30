@@ -94,6 +94,34 @@
       display: none !important;
     }
 
+    /* Integrated Lesson Card Voice Reader Active State */
+    .page-card.speaking-card {
+      border-color: #059669 !important;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.45), 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .page-card.speaking-card-paused {
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.45) !important;
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .card-audio-btn {
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .card-audio-btn.is-playing {
+      background-color: #059669 !important;
+      color: #ffffff !important;
+      border-color: #047857 !important;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4) !important;
+    }
+    .card-audio-btn.is-paused {
+      background-color: #f59e0b !important;
+      color: #022c22 !important;
+      border-color: #d97706 !important;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4) !important;
+    }
+
     /* Bookmark active card border */
     .page-card.bookmarked-card {
       border-color: #f59e0b !important;
@@ -14075,6 +14103,9 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
       }
 
       function activateNavTarget(rawTarget, shouldScrollTop, toggleSubIfSame) {
+        if (typeof stopCardAudio === 'function') {
+          stopCardAudio(false);
+        }
         let targetSecId = rawTarget;
         if (!targetSecId || targetSecId === 'all' || targetSecId === 'contents-all') {
           targetSecId = 'sec-contents';
@@ -14326,52 +14357,186 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
       }
 
       // -------------------------------------------------------------------
-      // 4. Feature 1: Text-to-Speech Audio Reader (குரல் வாசிப்பு வசதி)
+      // 4. Feature 1: Integrated Lesson Voice Reader (பாடப்பகுதி வாரியான குரல் வாசிப்பு வசதி)
       // -------------------------------------------------------------------
-      let isAudioPlaying = false;
+      let currentAudioCard = null;
+      let activeSpeechState = null; // { card, btn, chunks, index, paused }
       const btnAudioReader = document.getElementById('btnAudioReader');
       const audioReaderIcon = document.getElementById('audioReaderIcon');
       const audioReaderLabel = document.getElementById('audioReaderLabel');
 
-      function stopAudioReading() {
-        if ('speechSynthesis' in window) {
-          window.speechSynthesis.cancel();
+      function getTamilVoice() {
+        if (!('speechSynthesis' in window)) return null;
+        const voices = window.speechSynthesis.getVoices() || [];
+        const taVoice = voices.find(function (v) {
+          return v.lang && (v.lang === 'ta-IN' || v.lang.startsWith('ta') || v.lang.startsWith('tam'));
+        });
+        if (taVoice) return taVoice;
+        const inVoice = voices.find(function (v) {
+          return v.lang && v.lang.includes('IN');
+        });
+        return inVoice || null;
+      }
+
+      function stopCardAudio(resetUIOnly) {
+        if (!resetUIOnly && 'speechSynthesis' in window) {
+          try { window.speechSynthesis.cancel(); } catch (e) {}
         }
-        isAudioPlaying = false;
+        if (activeSpeechState && activeSpeechState.card && activeSpeechState.btn) {
+          activeSpeechState.card.classList.remove('speaking-card', 'speaking-card-paused');
+          activeSpeechState.btn.classList.remove('is-playing', 'is-paused');
+          activeSpeechState.btn.className = 'card-audio-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white/90 dark:bg-slate-800 text-emerald-950 dark:text-amber-300 border border-emerald-600/40 hover:bg-emerald-50 dark:hover:bg-slate-700 transition no-print shrink-0 flex items-center gap-1.5 cursor-pointer shadow-sm';
+          activeSpeechState.btn.innerHTML = '<span class="audio-state-icon">🔊</span><span class="audio-state-text">வாசி</span>';
+          activeSpeechState.btn.title = 'இப்பாடப்பகுதியை வாசிக்க (Read Lesson Aloud)';
+        }
+        activeSpeechState = null;
+        currentAudioCard = null;
+
+        // Sync top nav bar reader button
         if (audioReaderIcon) audioReaderIcon.textContent = '🔊';
         if (audioReaderLabel) audioReaderLabel.textContent = 'குரல் வாசிப்பு';
         if (btnAudioReader) {
-          btnAudioReader.classList.remove('bg-amber-400', 'text-emerald-950');
+          btnAudioReader.classList.remove('bg-amber-400', 'text-emerald-950', 'bg-emerald-600', 'text-white');
           btnAudioReader.classList.add('bg-emerald-800', 'text-amber-200');
         }
       }
 
-      function startAudioReading() {
+      function extractCardSpeechText(card) {
+        if (!card) return '';
+        const clone = card.cloneNode(true);
+        clone.querySelectorAll('.no-print, script, style, svg, img, button, .bookmark-toggle-btn, .card-audio-btn').forEach(function (el) {
+          el.remove();
+        });
+        let text = (clone.innerText || clone.textContent || '')
+          .replace(/\[\s*Image\s*[^\]]*\]/gi, '')
+          .replace(/https?:\/\/\S+/g, '')
+          .replace(/[•★⭐📌\(\)\{\}\[\]\<\>\|]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        return text;
+      }
+
+      function splitTextIntoSpeechChunks(text) {
+        if (!text) return [];
+        const rawParts = text.split(/([.?!;\n।]+)/);
+        const chunks = [];
+        let cur = '';
+        for (let i = 0; i < rawParts.length; i++) {
+          const part = rawParts[i].trim();
+          if (!part) continue;
+          if ((cur + ' ' + part).length > 175) {
+            if (cur) chunks.push(cur.trim());
+            cur = part;
+          } else {
+            cur = cur ? (cur + ' ' + part) : part;
+          }
+        }
+        if (cur.trim()) chunks.push(cur.trim());
+        return chunks.filter(function (c) { return c.length > 0; });
+      }
+
+      function speakNextChunk() {
+        if (!activeSpeechState || activeSpeechState.paused) return;
+        if (activeSpeechState.index >= activeSpeechState.chunks.length) {
+          stopCardAudio(true);
+          return;
+        }
+
+        const chunkText = activeSpeechState.chunks[activeSpeechState.index];
+        const utter = new SpeechSynthesisUtterance(chunkText);
+        utter.lang = 'ta-IN';
+        const v = getTamilVoice();
+        if (v) utter.voice = v;
+        utter.rate = 0.95;
+        utter.pitch = 1.0;
+
+        utter.onend = function () {
+          if (!activeSpeechState || activeSpeechState.paused) return;
+          activeSpeechState.index++;
+          speakNextChunk();
+        };
+
+        utter.onerror = function (e) {
+          if (!activeSpeechState || activeSpeechState.paused) return;
+          activeSpeechState.index++;
+          speakNextChunk();
+        };
+
+        window.speechSynthesis.speak(utter);
+      }
+
+      function toggleCardAudio(card, btn) {
         if (!('speechSynthesis' in window)) {
           alert('உங்கள் உலாவியில் குரல் வாசிப்பு வசதி (Web Speech Synthesis) ஆதரிக்கப்படவில்லை.');
           return;
         }
-        window.speechSynthesis.cancel();
-        const activeSec = document.getElementById(currentTarget) || document.querySelector('.page-section[style*="display: block"]');
-        if (!activeSec) return;
 
-        // Clean text for speech
-        let cleanText = (activeSec.innerText || '')
-          .replace(/\[\s*Image\s*[^\]]*\]/gi, '')
-          .replace(/https?:\/\/\S+/g, '')
-          .replace(/[•★⭐📌\(\)\{\}\[\]]/g, ' ')
-          .replace(/\s+/g, ' ')
-          .trim();
+        // 1. If currently active card
+        if (activeSpeechState && activeSpeechState.card === card) {
+          if (activeSpeechState.paused) {
+            // Resume
+            activeSpeechState.paused = false;
+            card.classList.remove('speaking-card-paused');
+            card.classList.add('speaking-card');
+            btn.classList.remove('is-paused');
+            btn.classList.add('is-playing');
+            btn.className = 'card-audio-btn is-playing px-2.5 py-1 rounded-lg text-xs font-extrabold bg-emerald-600 text-white border border-emerald-700 shadow-md transition no-print shrink-0 flex items-center gap-1.5 cursor-pointer ring-2 ring-emerald-400';
+            btn.innerHTML = '<span class="audio-state-icon animate-pulse">⏸️</span><span class="audio-state-text">இடைநிறுத்து</span>';
+            btn.title = 'ஒலிப்பினை இடைநிறுத்த (Pause Reading)';
 
-        if (!cleanText) return;
+            if (audioReaderIcon) audioReaderIcon.textContent = '⏸️';
+            if (audioReaderLabel) audioReaderLabel.textContent = 'இடைநிறுத்து';
 
-        const utter = new SpeechSynthesisUtterance(cleanText.slice(0, 3500));
-        utter.lang = 'ta-IN';
-        utter.rate = 0.95;
-        utter.onend = stopAudioReading;
-        utter.onerror = stopAudioReading;
+            if (window.speechSynthesis.paused) {
+              try { window.speechSynthesis.resume(); } catch (e) {}
+            } else {
+              speakNextChunk();
+            }
+          } else {
+            // Pause
+            activeSpeechState.paused = true;
+            try { window.speechSynthesis.pause(); } catch (e) {}
+            card.classList.remove('speaking-card');
+            card.classList.add('speaking-card-paused');
+            btn.classList.remove('is-playing');
+            btn.classList.add('is-paused');
+            btn.className = 'card-audio-btn is-paused px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-400 text-emerald-950 border border-amber-600 shadow-sm transition no-print shrink-0 flex items-center gap-1.5 cursor-pointer';
+            btn.innerHTML = '<span class="audio-state-icon">▶️</span><span class="audio-state-text">தொடர்க</span>';
+            btn.title = 'வாசிப்பைத் தொடர (Resume Reading)';
 
-        isAudioPlaying = true;
+            if (audioReaderIcon) audioReaderIcon.textContent = '▶️';
+            if (audioReaderLabel) audioReaderLabel.textContent = 'தொடர்க';
+          }
+          return;
+        }
+
+        // 2. New card or fresh start
+        stopCardAudio(false);
+
+        const cardText = extractCardSpeechText(card);
+        if (!cardText) {
+          alert('இப்பாடப்பகுதியில் வாசிப்பதற்கான உரை கண்டறியப்படவில்லை.');
+          return;
+        }
+
+        const chunks = splitTextIntoSpeechChunks(cardText);
+        if (chunks.length === 0) return;
+
+        activeSpeechState = {
+          card: card,
+          btn: btn,
+          chunks: chunks,
+          index: 0,
+          paused: false
+        };
+        currentAudioCard = card;
+
+        card.classList.add('speaking-card');
+        btn.classList.add('is-playing');
+        btn.className = 'card-audio-btn is-playing px-2.5 py-1 rounded-lg text-xs font-extrabold bg-emerald-600 text-white border border-emerald-700 shadow-md transition no-print shrink-0 flex items-center gap-1.5 cursor-pointer ring-2 ring-emerald-400';
+        btn.innerHTML = '<span class="audio-state-icon animate-pulse">⏸️</span><span class="audio-state-text">இடைநிறுத்து</span>';
+        btn.title = 'ஒலிப்பினை இடைநிறுத்த (Pause Reading)';
+
         if (audioReaderIcon) audioReaderIcon.textContent = '⏹️';
         if (audioReaderLabel) audioReaderLabel.textContent = 'நிறுத்து';
         if (btnAudioReader) {
@@ -14379,17 +14544,32 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           btnAudioReader.classList.add('bg-amber-400', 'text-emerald-950');
         }
 
-        window.speechSynthesis.speak(utter);
+        speakNextChunk();
       }
 
       if (btnAudioReader) {
         btnAudioReader.addEventListener('click', function () {
-          if (isAudioPlaying) {
-            stopAudioReading();
+          if (activeSpeechState) {
+            stopCardAudio(false);
           } else {
-            startAudioReading();
+            const activeSec = document.getElementById(currentTarget) || document.querySelector('.page-section[style*="display: block"]');
+            if (!activeSec) return;
+            const firstCard = activeSec.querySelector('.page-card:not([data-no-bookmark="1"])') || activeSec.querySelector('.page-card');
+            if (firstCard) {
+              const audioBtn = firstCard.querySelector('.card-audio-btn');
+              if (audioBtn) {
+                firstCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                toggleCardAudio(firstCard, audioBtn);
+              }
+            }
           }
         });
+      }
+
+      if ('speechSynthesis' in window && window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = function () {
+          getTamilVoice();
+        };
       }
 
       // -------------------------------------------------------------------
@@ -14493,6 +14673,19 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         const parentSec = card.closest('.page-section');
         const chCode = parentSec ? (parentSec.getAttribute('data-chapter') || '').toUpperCase() : 'BIO';
 
+        // 1. Integrated Voice Audio Button
+        const audioBtn = document.createElement('button');
+        audioBtn.type = 'button';
+        audioBtn.className = 'card-audio-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white/90 dark:bg-slate-800 text-emerald-950 dark:text-amber-300 border border-emerald-600/40 hover:bg-emerald-50 dark:hover:bg-slate-700 transition no-print shrink-0 flex items-center gap-1.5 cursor-pointer shadow-sm';
+        audioBtn.innerHTML = '<span class="audio-state-icon">🔊</span><span class="audio-state-text">வாசி</span>';
+        audioBtn.title = 'இப்பாடப்பகுதியை வாசிக்க (Read Lesson Aloud)';
+
+        audioBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          toggleCardAudio(card, audioBtn);
+        });
+
+        // 2. Bookmark Toggle Button
         const bmBtn = document.createElement('button');
         bmBtn.type = 'button';
         bmBtn.className = 'bookmark-toggle-btn px-2.5 py-1 rounded-lg text-xs font-bold border transition no-print shrink-0';
@@ -14507,7 +14700,8 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         }
         syncBmBtn();
 
-        bmBtn.addEventListener('click', function () {
+        bmBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
           if (savedBookmarks[cardId]) {
             delete savedBookmarks[cardId];
           } else {
@@ -14523,9 +14717,15 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           updateBookmarkBadge();
         });
 
+        // Action Buttons Wrapper
+        const actionsWrap = document.createElement('div');
+        actionsWrap.className = 'card-actions-wrapper flex items-center gap-1.5 no-print shrink-0';
+        actionsWrap.appendChild(audioBtn);
+        actionsWrap.appendChild(bmBtn);
+
         const firstBar = card.firstElementChild;
         if (firstBar) {
-          firstBar.appendChild(bmBtn);
+          firstBar.appendChild(actionsWrap);
         }
       });
       updateBookmarkBadge();
