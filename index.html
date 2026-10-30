@@ -748,6 +748,89 @@
       }
     }
 
+  
+    /* Bulletproof Mobile Sidebar: Hidden by default (< 1024px), shown ONLY with body.sidebar-open */
+    @media (max-width: 1023px) {
+      #chapterSidebar {
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        z-index: 50 !important;
+        box-shadow: 4px 0 28px rgba(0, 0, 0, 0.75) !important;
+      }
+      body.sidebar-open #chapterSidebar {
+        transform: translateX(0) !important;
+      }
+      #mainContentWrapper {
+        margin-left: 0 !important;
+      }
+    }
+    @media (min-width: 1024px) {
+      #chapterSidebar {
+        transform: translateX(0);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      body.sidebar-collapsed #chapterSidebar {
+        transform: translateX(-100%) !important;
+      }
+      body:not(.sidebar-collapsed) #mainContentWrapper {
+        margin-left: 21rem !important;
+      }
+    }
+
+    /* Diagram Labels Active Recall Self-Test Mode */
+    body.hide-diagram-labels .diagram-card figcaption,
+    body.hide-diagram-labels .diagram-card .bilingual-term,
+    body.hide-diagram-labels .diagram-card table {
+      filter: blur(6px);
+      transition: filter 0.25s ease;
+      user-select: none;
+    }
+    body.hide-diagram-labels .diagram-card:hover figcaption,
+    body.hide-diagram-labels .diagram-card:hover .bilingual-term,
+    body.hide-diagram-labels .diagram-card:hover table,
+    body.hide-diagram-labels .diagram-card:active figcaption,
+    body.hide-diagram-labels .diagram-card:active .bilingual-term,
+    body.hide-diagram-labels .diagram-card:active table {
+      filter: none;
+    }
+
+    /* Flashcard Flip Card & Modal Styles */
+    .flashcard-item {
+      perspective: 1000px;
+      cursor: pointer;
+    }
+    .flashcard-inner {
+      transition: transform 0.4s ease;
+      transform-style: preserve-3d;
+    }
+    .flashcard-item:hover .flashcard-inner {
+      transform: translateY(-2px);
+    }
+    .flashcard-tag {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.4px;
+    }
+
+    /* Dedicated Print View for Saved Bookmarks */
+    @media print {
+      body.printing-bookmarks * {
+        visibility: hidden !important;
+      }
+      body.printing-bookmarks #bookmarksPrintArea,
+      body.printing-bookmarks #bookmarksPrintArea * {
+        visibility: visible !important;
+      }
+      body.printing-bookmarks #bookmarksPrintArea {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+      }
+    }
+
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
@@ -807,6 +890,36 @@
             class="hidden px-1.5 py-0.5 rounded bg-emerald-800 hover:bg-emerald-700 text-amber-300 text-xs font-bold"
           >▼</button>
         </div>
+
+        <!-- Text-to-Speech Audio Reader Button -->
+        <button
+          id="btnAudioReader"
+          type="button"
+          title="இப்பக்கத்தைக் குரல் வழியாகக் கேட்க (Text-to-Speech Audio Reader)"
+          class="shrink-0 whitespace-nowrap px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-800 hover:bg-emerald-700 text-amber-200 border border-emerald-600 transition flex items-center gap-1"
+        >
+          <span id="audioReaderIcon">🔊</span><span class="hidden sm:inline" id="audioReaderLabel">குரல் வாசிப்பு</span>
+        </button>
+
+        <!-- Quick Revision Flashcards Modal Button -->
+        <button
+          id="btnOpenFlashcards"
+          type="button"
+          title="அத்தியாய வாரியான விரைவுத் திருப்புதல் அட்டைகள் (Quick Revision Flashcards)"
+          class="shrink-0 whitespace-nowrap px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-800 hover:bg-emerald-700 text-amber-200 border border-emerald-600 transition flex items-center gap-1"
+        >
+          <span>⚡</span><span class="hidden sm:inline">திருப்புதல்</span>
+        </button>
+
+        <!-- Diagram Labels Study Mode Toggle -->
+        <button
+          id="btnToggleDiagramLabels"
+          type="button"
+          title="படங்களின் பெயர்கள்/பாகங்களை மறைத்து சுயபரிசோதனை செய்ய (Diagram Labels Study Mode)"
+          class="shrink-0 whitespace-nowrap px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-800 hover:bg-emerald-700 text-amber-200 border border-emerald-600 transition flex items-center gap-1"
+        >
+          <span>🖼️</span><span class="hidden sm:inline">பட பாகங்கள்:</span> <span id="diagLabelsStatusText" class="text-amber-300 font-bold">காட்டு</span>
+        </button>
 
         <!-- Bilingual Glossary Modal Button -->
         <button
@@ -887,6 +1000,15 @@
     style="top: var(--header-h, 96px);"
     class="fixed bottom-0 left-0 w-[84vw] max-w-[20rem] sm:w-[21rem] z-40 bg-emerald-950 text-emerald-50 border-r-2 border-emerald-800 shadow-2xl flex flex-col transition-transform duration-300 ease-in-out no-print"
   >
+    <!-- Mobile Sidebar Header with Close Button -->
+    <div class="px-3.5 py-2.5 bg-emerald-900 border-b border-emerald-700/60 flex items-center justify-between gap-2 lg:hidden shrink-0">
+      <div class="flex items-center gap-2">
+        <span class="text-base">📚</span>
+        <span class="font-extrabold text-xs text-amber-300">அத்தியாயங்கள் &amp; பாடப்பிரிவுகள்</span>
+      </div>
+      <button id="sidebarCloseBtn" type="button" class="w-7 h-7 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-amber-300 font-bold flex items-center justify-center text-sm border border-emerald-600 shadow-sm" title="மெனுவை மூடுக (Close Menu)">✕</button>
+    </div>
+
     <!-- Scrollable Chapter & Section Tree -->
     <nav class="flex-1 overflow-y-auto sidebar-scroll p-2.5 space-y-2 text-xs">
       <!-- Quick Chapter Number Buttons Grid in Sidebar -->
@@ -13732,7 +13854,12 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           <h3 class="text-sm sm:text-base font-extrabold text-amber-300">⭐ நீங்கள் குறித்த முக்கியப் பாடப்பகுதிகள் (Saved Bookmarks)</h3>
           <p class="text-[11px] text-emerald-200">தேர்வு நேர மீள்பார்வைக்காகச் சேமிக்கப்பட்ட பகுதிகள்</p>
         </div>
-        <button id="closeBookmarksBtn" type="button" class="px-3 py-1 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-amber-300 text-xs font-bold">✕ மூடுக</button>
+        <div class="flex items-center gap-2">
+          <button id="printBookmarksBtn" type="button" class="px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-emerald-950 text-xs font-extrabold flex items-center gap-1 shadow-sm transition">
+            <span>🖨️</span><span>குறித்தவற்றை அச்சிடுக</span>
+          </button>
+          <button id="closeBookmarksBtn" type="button" class="px-3 py-1 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-amber-300 text-xs font-bold">✕ மூடுக</button>
+        </div>
       </div>
       <div id="bookmarksListContainer" class="flex-1 overflow-y-auto p-4 space-y-2.5 text-xs sm:text-sm">
       </div>
@@ -13741,6 +13868,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
 
   <script>
     (function () {
+      // Elements
       const toggleEngBtn = document.getElementById('toggleEngBtn');
       const engStatusText = document.getElementById('engStatusText');
       const printBtn = document.getElementById('printBtn');
@@ -13749,6 +13877,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
       const searchPrevBtn = document.getElementById('searchPrevBtn');
       const searchNextBtn = document.getElementById('searchNextBtn');
       const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+      const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
       const sidebarBackdrop = document.getElementById('sidebarBackdrop');
       const toggleAllSubsectionsBtn = document.getElementById('toggleAllSubsectionsBtn');
       const chAccBtns = document.querySelectorAll('.ch-acc-btn');
@@ -13776,10 +13905,10 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
 
       let showEnglish = true;
       let allSubExpanded = false;
-      let currentTarget = 'all';
+      let currentTarget = 'sec-contents';
 
       // -------------------------------------------------------------------
-      // 1. Responsive Sidebar Initialization & Toggle
+      // 1. Header Offset & Mobile Sidebar Controls
       // -------------------------------------------------------------------
       const topAppHeader = document.getElementById('topAppHeader');
       function syncHeaderOffset() {
@@ -13793,92 +13922,55 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         new ResizeObserver(syncHeaderOffset).observe(topAppHeader);
       }
 
-      function initSidebarState() {
-        // Update mobile bottom bar page counter & Prev/Next states
-        const allSecList = Array.from(sections);
-        const curSecIdx = allSecList.findIndex(function (s) { return s.id === activeSecId; });
-        const mobPageNumEl = document.getElementById('mobCurrentPageNum');
-        if (mobPageNumEl && curSecIdx !== -1) {
-          const chLabel = (activeCh === 'contents') ? 'பொருளடக்கம்' : ('அத் ' + activeCh.replace('ch', ''));
-          mobPageNumEl.textContent = chLabel + ' • பக்கம் ' + (curSecIdx + 1) + ' / ' + allSecList.length;
-        }
-        const mobPrevBtn = document.getElementById('mobPrevPageBtn');
-        const mobNextBtn = document.getElementById('mobNextPageBtn');
-        if (mobPrevBtn) {
-          mobPrevBtn.disabled = (curSecIdx <= 0);
-          mobPrevBtn.style.opacity = (curSecIdx <= 0) ? '0.45' : '1';
-          mobPrevBtn.onclick = function () {
-            if (curSecIdx > 0) activateNavTarget(allSecList[curSecIdx - 1].id, true, false);
-          };
-        }
-        if (mobNextBtn) {
-          mobNextBtn.disabled = (curSecIdx === -1 || curSecIdx >= allSecList.length - 1);
-          mobNextBtn.style.opacity = (curSecIdx === -1 || curSecIdx >= allSecList.length - 1) ? '0.45' : '1';
-          mobNextBtn.onclick = function () {
-            if (curSecIdx !== -1 && curSecIdx < allSecList.length - 1) activateNavTarget(allSecList[curSecIdx + 1].id, true, false);
-          };
-        }
-
-        // On mobile (<1024px), keep sidebar open if user tapped a main chapter header inside the sidebar to view its sub-menu; close sidebar when selecting a specific section or number button
-        if (window.innerWidth < 1024 && !window.__keepSidebarOpenOnce) {
-          document.body.classList.add('sidebar-collapsed');
-          if (sidebarBackdrop) sidebarBackdrop.classList.add('hidden');
-        }
-        window.__keepSidebarOpenOnce = false; else {
+      function openSidebar() {
+        if (window.innerWidth < 1024) {
+          document.body.classList.add('sidebar-open');
+          if (sidebarBackdrop) sidebarBackdrop.classList.remove('hidden');
+        } else {
           document.body.classList.remove('sidebar-collapsed');
-          if (sidebarBackdrop) sidebarBackdrop.classList.add('hidden');
         }
       }
-      initSidebarState();
+
+      function closeSidebar() {
+        if (window.innerWidth < 1024) {
+          document.body.classList.remove('sidebar-open');
+          if (sidebarBackdrop) sidebarBackdrop.classList.add('hidden');
+        } else {
+          document.body.classList.add('sidebar-collapsed');
+        }
+      }
+
+      function toggleSidebar() {
+        if (window.innerWidth < 1024) {
+          const isOpen = document.body.classList.toggle('sidebar-open');
+          if (sidebarBackdrop) sidebarBackdrop.classList.toggle('hidden', !isOpen);
+        } else {
+          document.body.classList.toggle('sidebar-collapsed');
+        }
+      }
 
       if (sidebarToggleBtn) {
-        sidebarToggleBtn.addEventListener('click', function () {
-          const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
-          if (sidebarBackdrop) {
-            if (!isCollapsed && window.innerWidth < 1024) {
-              sidebarBackdrop.classList.remove('hidden');
-            } else {
-              sidebarBackdrop.classList.add('hidden');
-            }
-          }
+        sidebarToggleBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          toggleSidebar();
+        });
+      }
+
+      if (sidebarCloseBtn) {
+        sidebarCloseBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          closeSidebar();
         });
       }
 
       if (sidebarBackdrop) {
         sidebarBackdrop.addEventListener('click', function () {
-          document.body.classList.add('sidebar-collapsed');
-          sidebarBackdrop.classList.add('hidden');
-        });
-      }
-
-      // Chapter Accordion Toggle in Left Sidebar
-      chAccBtns.forEach(function (btn) {
-        btn.addEventListener('click', function (e) {
-          e.stopPropagation();
-          const subId = btn.getAttribute('data-ch-toggle');
-          const subEl = document.getElementById(subId);
-          if (subEl) {
-            const isHidden = subEl.classList.toggle('hidden');
-            btn.textContent = isHidden ? '▾' : '▴';
-          }
-        });
-      });
-
-      if (toggleAllSubsectionsBtn) {
-        toggleAllSubsectionsBtn.addEventListener('click', function () {
-          allSubExpanded = !allSubExpanded;
-          chSubMenus.forEach(function (menu) {
-            menu.classList.toggle('hidden', !allSubExpanded);
-          });
-          chAccBtns.forEach(function (btn) {
-            btn.textContent = allSubExpanded ? '▴' : '▾';
-          });
-          toggleAllSubsectionsBtn.textContent = allSubExpanded ? 'உட்பிரிவுகள்: சுருக்கு' : 'உட்பிரிவுகள்: விரி';
+          closeSidebar();
         });
       }
 
       // -------------------------------------------------------------------
-      // 2. Dark / Light Mode Toggle + Font Size Adjuster (with localStorage)
+      // 2. Dark Mode & Root Font Scale
       // -------------------------------------------------------------------
       const darkModeBtn = document.getElementById('darkModeBtn');
       const darkModeIcon = document.getElementById('darkModeIcon');
@@ -13927,7 +14019,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         toggleEngBtn.addEventListener('click', function () {
           showEnglish = !showEnglish;
           document.body.classList.toggle('hide-english', !showEnglish);
-          engStatusText.textContent = showEnglish ? 'காட்டு' : 'மறை';
+          if (engStatusText) engStatusText.textContent = showEnglish ? 'காட்டு' : 'மறை';
         });
       }
 
@@ -13938,7 +14030,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
       }
 
       // -------------------------------------------------------------------
-      // 3. Single-Page-at-a-Time Sidebar & Prev/Next Page Navigation
+      // 3. Navigation System (Pages, Sections, Chapters, Prev/Next)
       // -------------------------------------------------------------------
       const chapterFirstSection = {
         "contents-all": "sec-contents",
@@ -13983,7 +14075,6 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
       }
 
       function activateNavTarget(rawTarget, shouldScrollTop, toggleSubIfSame) {
-        // Resolve target to a single specific .page-section ID
         let targetSecId = rawTarget;
         if (!targetSecId || targetSecId === 'all' || targetSecId === 'contents-all') {
           targetSecId = 'sec-contents';
@@ -13999,7 +14090,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         const wasSameMain = (currentTarget === activeSecId && rawTarget && rawTarget.endsWith('-all'));
         currentTarget = activeSecId;
 
-        // Highlight both the parent main chapter tab, number button, and active sub-section tab
+        // Highlight active tabs & buttons
         navTabs.forEach(function (t) {
           const dt = t.getAttribute('data-target');
           const chNum = t.getAttribute('data-ch-num');
@@ -14007,7 +14098,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           styleNavTab(t, isMatch);
         });
 
-        // Populate quick sub-section pills inside #activeChapterSubPills for mobile 1-tap section switching
+        // Populate active chapter sub-pills in quick header bar
         const subPillsBar = document.getElementById('activeChapterSubPills');
         if (subPillsBar) {
           if (activeCh === 'contents') {
@@ -14036,7 +14127,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           }
         }
 
-        // Show ONLY the active chapter's sub-menu in the left sidebar
+        // Sidebar sub-menu visibility
         if (activeCh === 'contents') {
           chSubMenus.forEach(function (m) { m.classList.add('hidden'); });
         } else {
@@ -14053,12 +14144,12 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           }
         }
 
-        // Show ONLY the single active .page-section
+        // Show ONLY the active section
         sections.forEach(function (sec) {
           sec.style.display = (sec.id === activeSecId) ? 'block' : 'none';
         });
 
-        // Show ONLY the banner of the active chapter
+        // Show active banner
         if (contentsBanner) contentsBanner.style.display = (activeCh === 'contents') ? 'flex' : 'none';
         if (ch1Banner) ch1Banner.style.display = (activeCh === 'ch1') ? 'flex' : 'none';
         if (ch2Banner) ch2Banner.style.display = (activeCh === 'ch2') ? 'flex' : 'none';
@@ -14074,20 +14165,47 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         if (ch12Banner) ch12Banner.style.display = (activeCh === 'ch12') ? 'flex' : 'none';
         if (ch13Banner) ch13Banner.style.display = (activeCh === 'ch13') ? 'flex' : 'none';
 
-        // Keep active sidebar item visible inside sidebar scroll container
+        // Keep active sidebar item in view
         const activeSubBtn = document.querySelector('.nav-tab[data-target="' + activeSecId + '"]');
         if (activeSubBtn) {
           activeSubBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Update mobile bottom bar state
+        const allSecList = Array.from(sections);
+        const curSecIdx = allSecList.findIndex(function (s) { return s.id === activeSecId; });
+        const mobPageNumEl = document.getElementById('mobCurrentPageNum');
+        if (mobPageNumEl && curSecIdx !== -1) {
+          const chLabel = (activeCh === 'contents') ? 'பொருளடக்கம்' : ('அத் ' + activeCh.replace('ch', ''));
+          mobPageNumEl.textContent = chLabel + ' • ' + (curSecIdx + 1) + ' / ' + allSecList.length;
+        }
+
+        const mobPrevBtn = document.getElementById('mobPrevPageBtn');
+        const mobNextBtn = document.getElementById('mobNextPageBtn');
+        if (mobPrevBtn) {
+          mobPrevBtn.disabled = (curSecIdx <= 0);
+          mobPrevBtn.style.opacity = (curSecIdx <= 0) ? '0.45' : '1';
+          mobPrevBtn.onclick = function () {
+            if (curSecIdx > 0) activateNavTarget(allSecList[curSecIdx - 1].id, true, false);
+          };
+        }
+        if (mobNextBtn) {
+          mobNextBtn.disabled = (curSecIdx === -1 || curSecIdx >= allSecList.length - 1);
+          mobNextBtn.style.opacity = (curSecIdx === -1 || curSecIdx >= allSecList.length - 1) ? '0.45' : '1';
+          mobNextBtn.onclick = function () {
+            if (curSecIdx !== -1 && curSecIdx < allSecList.length - 1) activateNavTarget(allSecList[curSecIdx + 1].id, true, false);
+          };
         }
 
         if (shouldScrollTop !== false) {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        if (window.innerWidth < 1024) {
-          document.body.classList.add('sidebar-collapsed');
-          if (sidebarBackdrop) sidebarBackdrop.classList.add('hidden');
+        // On mobile, close sidebar unless user tapped main chapter header to view sub-menu
+        if (window.innerWidth < 1024 && !window.__keepSidebarOpenOnce) {
+          closeSidebar();
         }
+        window.__keepSidebarOpenOnce = false;
 
         try {
           const label = activeSubBtn ? activeSubBtn.textContent.trim() : activeSecId;
@@ -14100,9 +14218,10 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         } catch (e) {}
       }
 
-      // Initialize view so ONLY the first menu page (sec-contents) is shown on load
+      // Initialize view with sec-contents
       activateNavTarget('sec-contents', false, false);
 
+      // Event Listeners for Nav Tabs
       navTabs.forEach(function (tab) {
         tab.addEventListener('click', function () {
           const tTarget = tab.getAttribute('data-target') || '';
@@ -14118,13 +14237,17 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         });
       });
 
-      const mobMenuIndBtn = document.getElementById('mobMenuIndicatorBtn');
-      if (mobMenuIndBtn) {
-        mobMenuIndBtn.addEventListener('click', function () {
-          toggleSidebar();
+      // Jump buttons in sec-contents (Table of Contents)
+      jumpBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const targetSecId = btn.getAttribute('data-jump-section');
+          if (targetSecId) {
+            activateNavTarget(targetSecId, true, false);
+          }
         });
-      }
+      });
 
+      // Page Step buttons (Prev / Next page)
       document.querySelectorAll('.page-step-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
           const stepTarget = btn.getAttribute('data-page-step');
@@ -14132,6 +14255,15 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         });
       });
 
+      // Mobile Bottom Bar Indicator Button opens Sidebar
+      const mobMenuIndBtn = document.getElementById('mobMenuIndicatorBtn');
+      if (mobMenuIndBtn) {
+        mobMenuIndBtn.addEventListener('click', function () {
+          toggleSidebar();
+        });
+      }
+
+      // Unit Filter buttons
       unitFilterBtns.forEach(function (btn) {
         btn.addEventListener('click', function () {
           const filter = btn.getAttribute('data-unit-filter');
@@ -14148,18 +14280,36 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         });
       });
 
-      jumpBtns.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          const targetSecId = btn.getAttribute('data-jump-section');
-          if (targetSecId) {
-            activateNavTarget(targetSecId, true, false);
+      // Chapter Accordion Toggle in Left Sidebar
+      chAccBtns.forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const subId = btn.getAttribute('data-ch-toggle');
+          const subEl = document.getElementById(subId);
+          if (subEl) {
+            const isHidden = subEl.classList.toggle('hidden');
+            btn.textContent = isHidden ? '▾' : '▴';
           }
         });
       });
 
+      if (toggleAllSubsectionsBtn) {
+        toggleAllSubsectionsBtn.addEventListener('click', function () {
+          allSubExpanded = !allSubExpanded;
+          chSubMenus.forEach(function (menu) {
+            menu.classList.toggle('hidden', !allSubExpanded);
+          });
+          chAccBtns.forEach(function (btn) {
+            btn.textContent = allSubExpanded ? '▴' : '▾';
+          });
+          toggleAllSubsectionsBtn.textContent = allSubExpanded ? 'உட்பிரிவுகள்: சுருக்கு' : 'உட்பிரிவுகள்: விரி';
+        });
+      }
+
+      // Back to Top Button
       window.addEventListener('scroll', function () {
         if (backToTopBtn) {
-          if (window.scrollY > 500) {
+          if (window.scrollY > 400) {
             backToTopBtn.classList.remove('hidden');
             backToTopBtn.classList.add('flex');
           } else {
@@ -14175,37 +14325,287 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         });
       }
 
-      // Resume Last Read Position Toast
-      try {
-        const savedPosRaw = localStorage.getItem('ncert12_last_pos');
-        if (savedPosRaw) {
-          const savedPos = JSON.parse(savedPosRaw);
-          if (savedPos && savedPos.secId && savedPos.secId !== 'sec-contents') {
-            const resumeToast = document.getElementById('resumeToast');
-            const resumeToastLabel = document.getElementById('resumeToastLabel');
-            const resumeConfirmBtn = document.getElementById('resumeConfirmBtn');
-            const resumeDismissBtn = document.getElementById('resumeDismissBtn');
-            if (resumeToast && resumeToastLabel) {
-              resumeToastLabel.textContent = savedPos.label || savedPos.secId;
-              resumeToast.classList.remove('hidden');
-              if (resumeConfirmBtn) {
-                resumeConfirmBtn.addEventListener('click', function () {
-                  activateNavTarget(savedPos.secId, true, false);
-                  resumeToast.classList.add('hidden');
-                });
-              }
-              if (resumeDismissBtn) {
-                resumeDismissBtn.addEventListener('click', function () {
-                  resumeToast.classList.add('hidden');
-                });
-              }
-            }
-          }
+      // -------------------------------------------------------------------
+      // 4. Feature 1: Text-to-Speech Audio Reader (குரல் வாசிப்பு வசதி)
+      // -------------------------------------------------------------------
+      let isAudioPlaying = false;
+      const btnAudioReader = document.getElementById('btnAudioReader');
+      const audioReaderIcon = document.getElementById('audioReaderIcon');
+      const audioReaderLabel = document.getElementById('audioReaderLabel');
+
+      function stopAudioReading() {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
         }
-      } catch (e) {}
+        isAudioPlaying = false;
+        if (audioReaderIcon) audioReaderIcon.textContent = '🔊';
+        if (audioReaderLabel) audioReaderLabel.textContent = 'குரல் வாசிப்பு';
+        if (btnAudioReader) {
+          btnAudioReader.classList.remove('bg-amber-400', 'text-emerald-950');
+          btnAudioReader.classList.add('bg-emerald-800', 'text-amber-200');
+        }
+      }
+
+      function startAudioReading() {
+        if (!('speechSynthesis' in window)) {
+          alert('உங்கள் உலாவியில் குரல் வாசிப்பு வசதி (Web Speech Synthesis) ஆதரிக்கப்படவில்லை.');
+          return;
+        }
+        window.speechSynthesis.cancel();
+        const activeSec = document.getElementById(currentTarget) || document.querySelector('.page-section[style*="display: block"]');
+        if (!activeSec) return;
+
+        // Clean text for speech
+        let cleanText = (activeSec.innerText || '')
+          .replace(/\[\s*Image\s*[^\]]*\]/gi, '')
+          .replace(/https?:\/\/\S+/g, '')
+          .replace(/[•★⭐📌\(\)\{\}\[\]]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+
+        if (!cleanText) return;
+
+        const utter = new SpeechSynthesisUtterance(cleanText.slice(0, 3500));
+        utter.lang = 'ta-IN';
+        utter.rate = 0.95;
+        utter.onend = stopAudioReading;
+        utter.onerror = stopAudioReading;
+
+        isAudioPlaying = true;
+        if (audioReaderIcon) audioReaderIcon.textContent = '⏹️';
+        if (audioReaderLabel) audioReaderLabel.textContent = 'நிறுத்து';
+        if (btnAudioReader) {
+          btnAudioReader.classList.remove('bg-emerald-800', 'text-amber-200');
+          btnAudioReader.classList.add('bg-amber-400', 'text-emerald-950');
+        }
+
+        window.speechSynthesis.speak(utter);
+      }
+
+      if (btnAudioReader) {
+        btnAudioReader.addEventListener('click', function () {
+          if (isAudioPlaying) {
+            stopAudioReading();
+          } else {
+            startAudioReading();
+          }
+        });
+      }
 
       // -------------------------------------------------------------------
-      // 4. Enhanced Search with Next / Previous Match Jump
+      // 5. Feature 2: Quick Revision Flashcards Modal (திருப்புதல் அட்டைகள்)
+      // -------------------------------------------------------------------
+      const btnOpenFlashcards = document.getElementById('btnOpenFlashcards');
+      const closeFlashcardsBtn = document.getElementById('closeFlashcardsBtn');
+      const flashcardsModal = document.getElementById('flashcardsModal');
+      const fcFilterBtns = document.querySelectorAll('.fc-filter-btn');
+      const flashcardItems = document.querySelectorAll('.flashcard-item');
+
+      if (btnOpenFlashcards && flashcardsModal) {
+        btnOpenFlashcards.addEventListener('click', function () {
+          flashcardsModal.classList.remove('hidden');
+        });
+      }
+
+      if (closeFlashcardsBtn && flashcardsModal) {
+        closeFlashcardsBtn.addEventListener('click', function () {
+          flashcardsModal.classList.add('hidden');
+        });
+      }
+
+      if (flashcardsModal) {
+        flashcardsModal.addEventListener('click', function (e) {
+          if (e.target === flashcardsModal) flashcardsModal.classList.add('hidden');
+        });
+      }
+
+      fcFilterBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const filter = btn.getAttribute('data-fc-ch') || 'all';
+          fcFilterBtns.forEach(function (b) {
+            if (b === btn) {
+              b.className = 'fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-800 text-white shadow-sm shrink-0';
+            } else {
+              b.className = 'fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0';
+            }
+          });
+          flashcardItems.forEach(function (item) {
+            const ch = item.getAttribute('data-fc-chapter');
+            item.style.display = (filter === 'all' || ch === filter) ? 'flex' : 'none';
+          });
+        });
+      });
+
+      document.querySelectorAll('.fc-goto-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const target = btn.getAttribute('data-jump-section');
+          if (target) {
+            if (flashcardsModal) flashcardsModal.classList.add('hidden');
+            activateNavTarget(target, true, false);
+          }
+        });
+      });
+
+      // -------------------------------------------------------------------
+      // 6. Feature 3: Diagram Labels Study Mode (பட பாகங்கள்: காட்டு / மறை)
+      // -------------------------------------------------------------------
+      let diagramLabelsHidden = false;
+      const btnToggleDiagramLabels = document.getElementById('btnToggleDiagramLabels');
+      const diagLabelsStatusText = document.getElementById('diagLabelsStatusText');
+
+      if (btnToggleDiagramLabels) {
+        btnToggleDiagramLabels.addEventListener('click', function () {
+          diagramLabelsHidden = !diagramLabelsHidden;
+          document.body.classList.toggle('hide-diagram-labels', diagramLabelsHidden);
+          if (diagLabelsStatusText) {
+            diagLabelsStatusText.textContent = diagramLabelsHidden ? 'மறை (சுயபரிசோதனை)' : 'காட்டு';
+          }
+        });
+      }
+
+      // -------------------------------------------------------------------
+      // 7. Feature 4: Bookmarks & Print Saved Bookmarks Notes
+      // -------------------------------------------------------------------
+      const openBookmarksBtn = document.getElementById('openBookmarksBtn');
+      const closeBookmarksBtn = document.getElementById('closeBookmarksBtn');
+      const printBookmarksBtn = document.getElementById('printBookmarksBtn');
+      const bookmarksModal = document.getElementById('bookmarksModal');
+      const bookmarksListContainer = document.getElementById('bookmarksListContainer');
+      const bookmarkCountBadge = document.getElementById('bookmarkCountBadge');
+      let savedBookmarks = {};
+
+      try {
+        const rawBm = localStorage.getItem('ncert12_bookmarks');
+        if (rawBm) savedBookmarks = JSON.parse(rawBm) || {};
+      } catch (e) {}
+
+      function updateBookmarkBadge() {
+        const count = Object.keys(savedBookmarks).length;
+        if (bookmarkCountBadge) bookmarkCountBadge.textContent = count;
+      }
+
+      document.querySelectorAll('.page-card').forEach(function (card, idx) {
+        if (card.getAttribute('data-no-bookmark') === '1') return;
+        const cardId = card.id || ('page-card-' + idx);
+        card.id = cardId;
+        const headingEl = card.querySelector('h2, h3');
+        const titleText = headingEl ? headingEl.textContent.trim().replace(/\s+/g, ' ') : ('பாடப்பகுதி #' + (idx + 1));
+        const parentSec = card.closest('.page-section');
+        const chCode = parentSec ? (parentSec.getAttribute('data-chapter') || '').toUpperCase() : 'BIO';
+
+        const bmBtn = document.createElement('button');
+        bmBtn.type = 'button';
+        bmBtn.className = 'bookmark-toggle-btn px-2.5 py-1 rounded-lg text-xs font-bold border transition no-print shrink-0';
+
+        function syncBmBtn() {
+          const isSaved = Boolean(savedBookmarks[cardId]);
+          card.classList.toggle('bookmarked-card', isSaved);
+          bmBtn.textContent = isSaved ? '⭐ குறிக்கப்பட்டது' : '☆ குறி (Bookmark)';
+          bmBtn.className = isSaved
+            ? 'bookmark-toggle-btn px-2.5 py-1 rounded-lg text-xs font-extrabold bg-amber-400 text-emerald-950 border border-amber-600 shadow-sm transition no-print shrink-0'
+            : 'bookmark-toggle-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white/90 dark:bg-slate-800 text-emerald-950 dark:text-amber-300 border border-emerald-600/40 hover:bg-amber-100 transition no-print shrink-0';
+        }
+        syncBmBtn();
+
+        bmBtn.addEventListener('click', function () {
+          if (savedBookmarks[cardId]) {
+            delete savedBookmarks[cardId];
+          } else {
+            savedBookmarks[cardId] = {
+              id: cardId,
+              title: titleText.slice(0, 120),
+              ch: chCode,
+              secId: parentSec ? parentSec.id : 'sec-contents'
+            };
+          }
+          try { localStorage.setItem('ncert12_bookmarks', JSON.stringify(savedBookmarks)); } catch (e) {}
+          syncBmBtn();
+          updateBookmarkBadge();
+        });
+
+        const firstBar = card.firstElementChild;
+        if (firstBar) {
+          firstBar.appendChild(bmBtn);
+        }
+      });
+      updateBookmarkBadge();
+
+      function renderBookmarksList() {
+        if (!bookmarksListContainer) return;
+        const keys = Object.keys(savedBookmarks);
+        if (keys.length === 0) {
+          bookmarksListContainer.innerHTML = '<div class="p-8 text-center text-slate-500">இதுவரை எந்தப் பாடப்பகுதியும் குறிக்கப்படவில்லை. எந்தவொரு பாட அட்டையின் வலது மேல் மூலையில் உள்ள <strong>"☆ குறி (Bookmark)"</strong> பொத்தானை அழுத்தி முக்கியப் பகுதிகளைச் சேமிக்கலாம்.</div>';
+          return;
+        }
+        bookmarksListContainer.innerHTML = '';
+        keys.forEach(function (k) {
+          const item = savedBookmarks[k];
+          const row = document.createElement('div');
+          row.className = 'p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3';
+          row.innerHTML = '<div><span class="px-2 py-0.5 rounded bg-emerald-900 text-amber-300 text-[10px] font-extrabold uppercase">' + item.ch + '</span><p class="font-bold text-slate-800 dark:text-slate-100 mt-1">' + item.title + '</p></div>';
+          const actDiv = document.createElement('div');
+          actDiv.className = 'flex items-center gap-2 shrink-0';
+          const goBtn = document.createElement('button');
+          goBtn.type = 'button';
+          goBtn.className = 'px-3 py-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold';
+          goBtn.textContent = 'செல்க →';
+          goBtn.addEventListener('click', function () {
+            bookmarksModal.classList.add('hidden');
+            activateNavTarget(item.secId || 'sec-contents', false, false);
+            const targetCard = document.getElementById(item.id);
+            if (targetCard) targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+          actDiv.appendChild(goBtn);
+          row.appendChild(actDiv);
+          bookmarksListContainer.appendChild(row);
+        });
+      }
+
+      if (openBookmarksBtn && bookmarksModal) {
+        openBookmarksBtn.addEventListener('click', function () {
+          renderBookmarksList();
+          bookmarksModal.classList.remove('hidden');
+        });
+      }
+      if (closeBookmarksBtn && bookmarksModal) {
+        closeBookmarksBtn.addEventListener('click', function () {
+          bookmarksModal.classList.add('hidden');
+        });
+      }
+      if (bookmarksModal) {
+        bookmarksModal.addEventListener('click', function (e) {
+          if (e.target === bookmarksModal) bookmarksModal.classList.add('hidden');
+        });
+      }
+
+      // Print Only Bookmarked Cards
+      if (printBookmarksBtn) {
+        printBookmarksBtn.addEventListener('click', function () {
+          const keys = Object.keys(savedBookmarks);
+          if (keys.length === 0) {
+            alert('அச்சிடுவதற்கு முன் ஏதேனும் பாடப்பகுதியைக் குறியிடவும் (Bookmark at least one topic).');
+            return;
+          }
+          const printArea = document.getElementById('bookmarksPrintArea');
+          if (!printArea) return;
+          printArea.innerHTML = '<div style="padding: 24px; font-family: sans-serif;"><h1 style="font-size: 1.5rem; color: #065f46; margin-bottom: 12px; border-bottom: 2px solid #059669; padding-bottom: 8px;">12-ஆம் வகுப்பு உயிரியல் — முக்கியப் பாடக் குறிப்புகள் (Saved Notes)</h1></div>';
+          keys.forEach(function (k) {
+            const card = document.getElementById(k);
+            if (card) {
+              const clone = card.cloneNode(true);
+              clone.querySelectorAll('.no-print, button').forEach(function (el) { el.remove(); });
+              printArea.appendChild(clone);
+            }
+          });
+
+          document.body.classList.add('printing-bookmarks');
+          window.print();
+          document.body.classList.remove('printing-bookmarks');
+        });
+      }
+
+      // -------------------------------------------------------------------
+      // 8. Search System with Next / Prev Match Jump
       // -------------------------------------------------------------------
       let matchedTerms = [];
       let currentMatchIdx = -1;
@@ -14284,7 +14684,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
       }
 
       // -------------------------------------------------------------------
-      // 5. Full-Screen Image Lightbox / Zoom Viewer
+      // 9. Full-Screen Image Lightbox / Zoom Viewer
       // -------------------------------------------------------------------
       const lightboxModal = document.getElementById('imageLightboxModal');
       const lightboxImg = document.getElementById('lightboxImg');
@@ -14327,13 +14727,15 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
       document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
           if (lightboxModal) lightboxModal.classList.add('hidden');
-          if (glossaryModal) glossaryModal.classList.add('hidden');
+          const gm = document.getElementById('glossaryModal');
+          if (gm) gm.classList.add('hidden');
           if (bookmarksModal) bookmarksModal.classList.add('hidden');
+          if (flashcardsModal) flashcardsModal.classList.add('hidden');
         }
       });
 
       // -------------------------------------------------------------------
-      // 6. Self-Test Mode: Expand / Collapse All Exercise Answers
+      // 10. Self-Test Mode: Expand / Collapse All Exercise Answers
       // -------------------------------------------------------------------
       const toggleAllAnswersBtn = document.getElementById('toggleAllAnswersBtn');
       const answersStatusText = document.getElementById('answersStatusText');
@@ -14377,7 +14779,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
       }
 
       // -------------------------------------------------------------------
-      // 7. Interactive Chapter-wise NEET / Board MCQ Quiz Logic
+      // 11. Interactive NEET MCQ Quiz
       // -------------------------------------------------------------------
       const quizScores = {};
       const quizAnswered = {};
@@ -14431,116 +14833,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
       });
 
       // -------------------------------------------------------------------
-      // 8. Bookmarks & Highlights System (with localStorage)
-      // -------------------------------------------------------------------
-      const openBookmarksBtn = document.getElementById('openBookmarksBtn');
-      const closeBookmarksBtn = document.getElementById('closeBookmarksBtn');
-      const bookmarksModal = document.getElementById('bookmarksModal');
-      const bookmarksListContainer = document.getElementById('bookmarksListContainer');
-      const bookmarkCountBadge = document.getElementById('bookmarkCountBadge');
-      let savedBookmarks = {};
-
-      try {
-        const rawBm = localStorage.getItem('ncert12_bookmarks');
-        if (rawBm) savedBookmarks = JSON.parse(rawBm) || {};
-      } catch (e) {}
-
-      function updateBookmarkBadge() {
-        const count = Object.keys(savedBookmarks).length;
-        if (bookmarkCountBadge) bookmarkCountBadge.textContent = count;
-      }
-
-      document.querySelectorAll('.page-card').forEach(function (card, idx) {
-        if (card.getAttribute('data-no-bookmark') === '1') return;
-        const cardId = card.id || ('page-card-' + idx);
-        card.id = cardId;
-        const headingEl = card.querySelector('h2, h3');
-        const titleText = headingEl ? headingEl.textContent.trim().replace(/\s+/g, ' ') : ('பாடப்பகுதி #' + (idx + 1));
-        const parentSec = card.closest('.page-section');
-        const chCode = parentSec ? (parentSec.getAttribute('data-chapter') || '').toUpperCase() : 'BIO';
-
-        const bmBtn = document.createElement('button');
-        bmBtn.type = 'button';
-        bmBtn.className = 'bookmark-toggle-btn px-2.5 py-1 rounded-lg text-xs font-bold border transition no-print shrink-0';
-
-        function syncBmBtn() {
-          const isSaved = Boolean(savedBookmarks[cardId]);
-          card.classList.toggle('bookmarked-card', isSaved);
-          bmBtn.textContent = isSaved ? '⭐ குறிக்கப்பட்டது' : '☆ குறி (Bookmark)';
-          bmBtn.className = isSaved
-            ? 'bookmark-toggle-btn px-2.5 py-1 rounded-lg text-xs font-extrabold bg-amber-400 text-emerald-950 border border-amber-600 shadow-sm transition no-print shrink-0'
-            : 'bookmark-toggle-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white/90 dark:bg-slate-800 text-emerald-950 dark:text-amber-300 border border-emerald-600/40 hover:bg-amber-100 transition no-print shrink-0';
-        }
-        syncBmBtn();
-
-        bmBtn.addEventListener('click', function () {
-          if (savedBookmarks[cardId]) {
-            delete savedBookmarks[cardId];
-          } else {
-            savedBookmarks[cardId] = {
-              id: cardId,
-              title: titleText.slice(0, 120),
-              ch: chCode,
-              secId: parentSec ? parentSec.id : 'all'
-            };
-          }
-          try { localStorage.setItem('ncert12_bookmarks', JSON.stringify(savedBookmarks)); } catch (e) {}
-          syncBmBtn();
-          updateBookmarkBadge();
-        });
-
-        const firstBar = card.firstElementChild;
-        if (firstBar) {
-          firstBar.appendChild(bmBtn);
-        }
-      });
-      updateBookmarkBadge();
-
-      function renderBookmarksList() {
-        if (!bookmarksListContainer) return;
-        const keys = Object.keys(savedBookmarks);
-        if (keys.length === 0) {
-          bookmarksListContainer.innerHTML = '<div class="p-8 text-center text-slate-500">இதுவரை எந்தப் பாடப்பகுதியும் குறிக்கப்படவில்லை. எந்தவொரு பாட அட்டையின் வலது மேல் மூலையில் உள்ள <strong>"☆ குறி (Bookmark)"</strong> பொத்தானை அழுத்தி முக்கியப் பகுதிகளைச் சேமிக்கலாம்.</div>';
-          return;
-        }
-        bookmarksListContainer.innerHTML = '';
-        keys.forEach(function (k) {
-          const item = savedBookmarks[k];
-          const row = document.createElement('div');
-          row.className = 'p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3';
-          row.innerHTML = '<div><span class="px-2 py-0.5 rounded bg-emerald-900 text-amber-300 text-[10px] font-extrabold uppercase">' + item.ch + '</span><p class="font-bold text-slate-800 dark:text-slate-100 mt-1">' + item.title + '</p></div>';
-          const actDiv = document.createElement('div');
-          actDiv.className = 'flex items-center gap-2 shrink-0';
-          const goBtn = document.createElement('button');
-          goBtn.type = 'button';
-          goBtn.className = 'px-3 py-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold';
-          goBtn.textContent = 'செல்க →';
-          goBtn.addEventListener('click', function () {
-            bookmarksModal.classList.add('hidden');
-            activateNavTarget(item.secId || 'sec-contents', false, false);
-            const targetCard = document.getElementById(item.id);
-            if (targetCard) targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          });
-          actDiv.appendChild(goBtn);
-          row.appendChild(actDiv);
-          bookmarksListContainer.appendChild(row);
-        });
-      }
-
-      if (openBookmarksBtn) {
-        openBookmarksBtn.addEventListener('click', function () {
-          renderBookmarksList();
-          bookmarksModal.classList.remove('hidden');
-        });
-      }
-      if (closeBookmarksBtn) {
-        closeBookmarksBtn.addEventListener('click', function () {
-          bookmarksModal.classList.add('hidden');
-        });
-      }
-
-      // -------------------------------------------------------------------
-      // 9. Interactive Bilingual Glossary Modal
+      // 12. Bilingual Glossary Modal
       // -------------------------------------------------------------------
       const openGlossaryBtn = document.getElementById('openGlossaryBtn');
       const closeGlossaryBtn = document.getElementById('closeGlossaryBtn');
@@ -14602,13 +14895,13 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         });
       }
 
-      if (openGlossaryBtn) {
+      if (openGlossaryBtn && glossaryModal) {
         openGlossaryBtn.addEventListener('click', function () {
           renderGlossary(glossarySearchInput ? glossarySearchInput.value : '');
           glossaryModal.classList.remove('hidden');
         });
       }
-      if (closeGlossaryBtn) {
+      if (closeGlossaryBtn && glossaryModal) {
         closeGlossaryBtn.addEventListener('click', function () {
           glossaryModal.classList.add('hidden');
         });
@@ -14619,6 +14912,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         });
       }
     })();
+
   </script>
 
 <script>
@@ -14714,6 +15008,279 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
   }
 })();
 </script>
+
+
+  <!-- Quick Revision Flashcards Modal (அத்தியாய வாரியான விரைவுத் திருப்புதல் அட்டை) -->
+  <div
+    id="flashcardsModal"
+    class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 no-print"
+  >
+    <div class="bg-white dark:bg-slate-900 w-full max-w-4xl max-h-[88vh] rounded-2xl shadow-2xl border-2 border-emerald-600 flex flex-col overflow-hidden">
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 bg-emerald-900 text-white flex items-center justify-between gap-3 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">⚡</span>
+          <div>
+            <h3 class="text-sm sm:text-base font-extrabold text-amber-300">ஒரு பக்க விரைவுத் திருப்புதல் அட்டைகள் (Quick Revision Flashcards)</h3>
+            <p class="text-[11px] text-emerald-200">NEET &amp; பொதுத்தேர்வுக்கான முக்கியக் குறிப்புகள், அறிஞர்கள், ஆண்டுகள் &amp; சூத்திரங்கள்</p>
+          </div>
+        </div>
+        <button id="closeFlashcardsBtn" type="button" class="px-3 py-1 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-amber-300 text-xs font-bold">✕ மூடுக</button>
+      </div>
+
+      <!-- Chapter Filter Pills -->
+      <div class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
+        <button type="button" class="fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-800 text-white shadow-sm shrink-0" data-fc-ch="all">அனைத்தும் (All)</button>
+        <button type="button" class="fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0" data-fc-ch="ch1">அத் 1</button>
+        <button type="button" class="fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0" data-fc-ch="ch2">அத் 2</button>
+        <button type="button" class="fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0" data-fc-ch="ch3">அத் 3</button>
+        <button type="button" class="fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0" data-fc-ch="ch4">அத் 4</button>
+        <button type="button" class="fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0" data-fc-ch="ch5">அத் 5</button>
+        <button type="button" class="fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0" data-fc-ch="ch6">அத் 6</button>
+        <button type="button" class="fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0" data-fc-ch="ch7">அத் 7</button>
+        <button type="button" class="fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0" data-fc-ch="ch8">அத் 8</button>
+        <button type="button" class="fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0" data-fc-ch="ch9">அத் 9</button>
+        <button type="button" class="fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0" data-fc-ch="ch10">அத் 10</button>
+        <button type="button" class="fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0" data-fc-ch="ch11">அத் 11</button>
+        <button type="button" class="fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0" data-fc-ch="ch12">அத் 12</button>
+        <button type="button" class="fc-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shrink-0" data-fc-ch="ch13">அத் 13</button>
+      </div>
+
+      <!-- Flashcards Grid Container -->
+      <div id="flashcardsGrid" class="flex-1 overflow-y-auto p-4 sm:p-5 grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs sm:text-sm">
+        <!-- Chapter 1 -->
+        <div class="flashcard-item p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 flex flex-col justify-between gap-2.5 shadow-sm" data-fc-chapter="ch1">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="flashcard-tag bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">அத்தியாயம் 1 • பூக்கும் தாவரங்கள்</span>
+              <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">NEET High-Yield</span>
+            </div>
+            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-sm mb-1.5">பஞ்சானன் மகேஸ்வரி &amp; இரட்டைக் கருவுறுதல்</h4>
+            <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+              • <strong>பஞ்சானன் மகேஸ்வரி:</strong> கருவியல் மற்றும் திசு வளர்ப்பின் தந்தை; 'தாவரங்களின் கருவியல் ஓர் அறிமுகம்' (1950).<br/>
+              • <strong>மகரந்தக்கூடு சுவர்கள் (4 அடுக்குகள்):</strong> புறத்தோல், எண்டோதீசியம், நடு அடுக்குகள், டபீட்டம் (ஊட்டம் அளிக்கும் உட்சுவர்).<br/>
+              • <strong>இரட்டைக் கருவுறுதல் (Double Fertilisation):</strong> சின்கேமி (இணைவு $	o$ சைகோட் 2n) + மூவிணைவு (Triple Fusion $	o$ முதன்மை எண்டோஸ்பெர்ம் உட்கரு PEN 3n).
+            </p>
+          </div>
+          <button type="button" data-jump-section="sec-unit6" class="fc-goto-btn text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 self-start">பாடத்திற்குச் செல்க →</button>
+        </div>
+
+        <!-- Chapter 2 -->
+        <div class="flashcard-item p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 flex flex-col justify-between gap-2.5 shadow-sm" data-fc-chapter="ch2">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="flashcard-tag bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">அத்தியாயம் 2 • மனித இனப்பெருக்கம்</span>
+              <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">NEET High-Yield</span>
+            </div>
+            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-sm mb-1.5">இனச்செல் உருவாக்கம் &amp; மாதவிடாய் சுழற்சி</h4>
+            <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+              • <strong>செர்டோலி செல்கள்:</strong> வளரும் விந்து செல்களுக்கு ஊட்டமளித்தல்.<br/>
+              • <strong>லேடிக் செல்கள் (இடைச்செல்கள்):</strong> ஆன்ட்ரோஜன் (டெஸ்டோஸ்டிரோன்) சுரப்பு.<br/>
+              • <strong>LH எழுச்சி (LH Surge):</strong> 14-ஆம் நாளில் கிராபியன் பாலிக்கிளிலிருந்து அண்டம் விடுபடல் (அண்டவெளியேற்றம்).<br/>
+              • <strong>கார்பஸ் லூட்டியம்:</strong> புரோஜெஸ்டிரோன் சுரந்து கருப்பை அகப்படலத்தை (எண்டோமெட்ரியம்) பராமரிக்கிறது.
+            </p>
+          </div>
+          <button type="button" data-jump-section="sec-male" class="fc-goto-btn text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 self-start">பாடத்திற்குச் செல்க →</button>
+        </div>
+
+        <!-- Chapter 3 -->
+        <div class="flashcard-item p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 flex flex-col justify-between gap-2.5 shadow-sm" data-fc-chapter="ch3">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="flashcard-tag bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">அத்தியாயம் 3 • இனப்பெருக்க நலன்</span>
+              <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">Board &amp; NEET</span>
+            </div>
+            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-sm mb-1.5">சஹேலி, MTP சட்டம் &amp; ART முறைகள்</h4>
+            <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+              • <strong>குடும்பக் கட்டுப்பாடு திட்டம்:</strong> 1951-ல் இந்தியாவில் தொடங்கப்பட்டது.<br/>
+              • <strong>சஹேலி (Saheli):</strong> ஸ்டீராய்டு அல்லாத வாரமொரு மாத்திரை (CDRI லக்னோ தயாரிப்பு).<br/>
+              • <strong>MTP சட்டம்:</strong> 1971-ல் சட்டப்பூர்வமாக்கப்பட்டது (2017/2021 திருத்தங்கள்).<br/>
+              • <strong>ART முறைகள்:</strong> IVF-ET (சோதனைக் குழாய் குழந்தை), ZIFT (8 பிளாஸ்டோமியர் வரை பலோப்பியன் குழாயில்), IUT (8-க்கு மேல் கருப்பையில்), ICSI (நுண் உட்செலுத்துதல்).
+            </p>
+          </div>
+          <button type="button" data-jump-section="sec-ch3-intro-prob" class="fc-goto-btn text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 self-start">பாடத்திற்குச் செல்க →</button>
+        </div>
+
+        <!-- Chapter 4 -->
+        <div class="flashcard-item p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 flex flex-col justify-between gap-2.5 shadow-sm" data-fc-chapter="ch4">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="flashcard-tag bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">அத்தியாயம் 4 • மரபியல் கொள்கைகள்</span>
+              <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">Core Concepts</span>
+            </div>
+            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-sm mb-1.5">மெண்டலின் விதிகள் &amp; மரபியல் குறைபாடுகள்</h4>
+            <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+              • <strong>மெண்டலின் விகிதங்கள்:</strong> ஒரு பண்புக் கலப்பு $3:1$ (புறத்தோற்றம்), $1:2:1$ (மரபணு); இரு பண்புக் கலப்பு $9:3:3:1$.<br/>
+              • <strong>குரோமோசோம் கோட்பாடு:</strong> வால்டர் சட்டன் &amp; தியோடர் போவரி (1902); தாமஸ் ஹன்ட் மோர்கன் (ட்ரோசோபிலா பிணைப்பு).<br/>
+              • <strong>குறைபாடுகள்:</strong> டவுன் கூட்டறிகுறி (டிரைசோமி 21), டர்னர் கூட்டறிகுறி ($45, XO$), கிளைன்பெல்டர் கூட்டறிகுறி ($47, XXY$), அரிவாள்செல் இரத்தசோகை (HbA $	o$ HbS, குளுட்டாமிக் அமிலம் $	o$ வாலின்).
+            </p>
+          </div>
+          <button type="button" data-jump-section="sec-ch4-unit7-mendel" class="fc-goto-btn text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 self-start">பாடத்திற்குச் செல்க →</button>
+        </div>
+
+        <!-- Chapter 5 -->
+        <div class="flashcard-item p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 flex flex-col justify-between gap-2.5 shadow-sm" data-fc-chapter="ch5">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="flashcard-tag bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">அத்தியாயம் 5 • மூலக்கூறு மரபியல்</span>
+              <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">Highest Weightage</span>
+            </div>
+            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-sm mb-1.5">DNA இரட்டிப்பாதல், லாக் ஓபரான் &amp; HGP</h4>
+            <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+              • <strong>வாட்சன் &amp; கிரிக்:</strong> DNA இரட்டைச் சுருள் மாதிரி (1953); சார்காஃப் சமநிலை விதி ($A=T, G=C$).<br/>
+              • <strong>பரிசோதனைகள்:</strong> கிரிஃபித் உருமாற்றம் (1928), ஹெர்ஷி-சேஸ் பாக்டீரியோஃபாஜ் (1952), மெசல்சன்-ஸ்டால் பாதி-பழமை முறை (1958).<br/>
+              • <strong>லாக் ஓபரான்:</strong> பிரான்சுவா ஜேக்கப் &amp; ஜாக் மோனாட்; மரபணுக்கள் $z$ ($eta$-கேலக்டோசிடேஸ்), $y$ (பெர்மியேஸ்), $a$ (டிரான்ஸ்அசிட்டைலேஸ்).<br/>
+              • <strong>HGP:</strong> 3 பில்லியன் கார இணைகள்; மனிதனில் சுமார் 30,000 மரபணுக்கள்.
+            </p>
+          </div>
+          <button type="button" data-jump-section="sec-ch5-dna-packaging" class="fc-goto-btn text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 self-start">பாடத்திற்குச் செல்க →</button>
+        </div>
+
+        <!-- Chapter 6 -->
+        <div class="flashcard-item p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 flex flex-col justify-between gap-2.5 shadow-sm" data-fc-chapter="ch6">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="flashcard-tag bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">அத்தியாயம் 6 • பரிணாமம்</span>
+              <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">Milestones</span>
+            </div>
+            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-sm mb-1.5">மில்லர் சோதனை, ஹார்டி-வீன்பெர்க் &amp; மனிதன்</h4>
+            <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+              • <strong>மில்லர்-யூரே சோதனை (1953):</strong> $CH_4, NH_3, H_2, H_2O$ வாயுக்கள் $+ 800^\circ C$ மின்பொறி $	o$ அமினோ அமிலங்கள் உருவாக்கம்.<br/>
+              • <strong>ஹார்டி-வீன்பெர்க் சமநிலை:</strong> $p^2 + 2pq + q^2 = 1$; பாதிக்கும் காரணிகள்: மரபணு ஓட்டம், மரபியல் நகர்வு, சடுதிமாற்றம், மறுசேர்க்கை, இயற்கை தேர்வு.<br/>
+              • <strong>மனித பரிணாம வரிசை:</strong> டிரையோபிதிகஸ் $	o$ ராமபிதிகஸ் $	o$ ஆஸ்ட்ரலோபிதிகஸ் $	o$ ஹோமோ ஹேபிலிஸ் (650–800 cc) $	o$ ஹோமோ எரக்டஸ் (900 cc) $	o$ நியாண்டர்தால் (1400 cc) $	o$ ஹோமோ சேபியன்ஸ்.
+            </p>
+          </div>
+          <button type="button" data-jump-section="sec-ch6-origin-theory" class="fc-goto-btn text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 self-start">பாடத்திற்குச் செல்க →</button>
+        </div>
+
+        <!-- Chapter 7 -->
+        <div class="flashcard-item p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 flex flex-col justify-between gap-2.5 shadow-sm" data-fc-chapter="ch7">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="flashcard-tag bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">அத்தியாயம் 7 • நோய்கள் &amp; எதிர்ப்பாற்றல்</span>
+              <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">Clinical Focus</span>
+            </div>
+            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-sm mb-1.5">பிளாஸ்மோடியம், ஆன்டிபாடி &amp; AIDS</h4>
+            <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+              • <strong>டைபாய்டு:</strong> சால்மோனெல்லா டைபி; வைடால் சோதனை (Widal Test).<br/>
+              • <strong>மலேரியா:</strong> பிளாஸ்மோடியம் வைவாக்ஸ்/மலேரியே/பால்சிபாரம்; கடத்தி: பெண் அனாபிலிஸ் கொசு; விஷப்பொருள்: ஹீமோசோயின்.<br/>
+              • <strong>ஆன்டிபாடி மூலக்கூறு:</strong> $H_2L_2$ (2 கனமான + 2 லேசான சங்கிலிகள்; IgA தாய்ப்பால் சீம்பாலில் உள்ளது).<br/>
+              • <strong>எய்ட்ஸ்:</strong> ரெட்ரோவைரஸ் (HIV); ரிவர்ஸ் டிரான்ஸ்கிரிப்டேஸ்; கண்டறியும் சோதனை: ELISA.
+            </p>
+          </div>
+          <button type="button" data-jump-section="sec-ch7-unit8-diseases" class="fc-goto-btn text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 self-start">பாடத்திற்குச் செல்க →</button>
+        </div>
+
+        <!-- Chapter 8 -->
+        <div class="flashcard-item p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 flex flex-col justify-between gap-2.5 shadow-sm" data-fc-chapter="ch8">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="flashcard-tag bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">அத்தியாயம் 8 • நுண்ணுயிரிகள்</span>
+              <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">Applied Biology</span>
+            </div>
+            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-sm mb-1.5">பெனிசிலின், உயிரி எரிவாயு &amp; உயிரி உரங்கள்</h4>
+            <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+              • <strong>பெனிசிலின்:</strong> அலெக்சாண்டர் பிளெமிங் (1928, பெனிசிலியம் நோட்டேட்டம்).<br/>
+              • <strong>கரிம அமிலங்கள்:</strong> ஆஸ்பெர்கில்லஸ் நைஜர் (சிட்ரிக் அமிலம்), அசிட்டோபாக்டர் அசிட்டி (அசிட்டிக் அமிலம்).<br/>
+              • <strong>சைக்கிளோஸ்போரின் A:</strong> டிரைக்கோடெர்மா பாலிஸ்போரம் (உறுப்பு மாற்று அறுவைசிகிச்சையில் நோய் எதிர்ப்புத் தடுப்பான்).<br/>
+              • <strong>உயிரி எரிவாயு:</strong> மீத்தனோபாக்டீரியம் (காற்றில்லா செரித்தல்); உயிரி உரங்கள்: ரைசோபியம், அசோஸ்பைரில்லம், அசோட்டோபாக்டர், அனபீனா, நாஸ்டாக்.
+            </p>
+          </div>
+          <button type="button" data-jump-section="sec-ch8-household" class="fc-goto-btn text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 self-start">பாடத்திற்குச் செல்க →</button>
+        </div>
+
+        <!-- Chapter 9 -->
+        <div class="flashcard-item p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 flex flex-col justify-between gap-2.5 shadow-sm" data-fc-chapter="ch9">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="flashcard-tag bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">அத்தியாயம் 9 • பயோடெக் கொள்கைகள்</span>
+              <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">rDNA Tools</span>
+            </div>
+            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-sm mb-1.5">தடைக்கட்டு நொதிகள், pBR322 &amp; PCR</h4>
+            <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+              • <strong>தடைக்கட்டு நொதிகள்:</strong> Hind II (முதல் ரெஸ்ட்ரிக்ஷன் எண்டோநியூக்ளியேஸ்); EcoRI பேலிண்ட்ரோமிக் வரிசை $5^{\prime}\text{-GAATTC-}3^{\prime}$.<br/>
+              • <strong>pBR322 பிளாஸ்மிட்:</strong> பொலிவர் &amp; ரோட்ரிகஸ்; தேர்வு குறிப்பான்கள் $amp^R, tet^R$; நகலாக்கத் தொடக்க இடம் $ori$.<br/>
+              • <strong>PCR படிகள் (கேரி முல்லிஸ்):</strong> இயல்பிழத்தல் ($94^{\circ}\text{C}$) $	o$ இணைத்தல் ($54^{\circ}\text{C}$) $	o$ நீட்டித்தல் ($72^{\circ}\text{C}$, டேக் பாலிமரேஸ் - தெர்மஸ் அக்வாடிகஸ்).
+            </p>
+          </div>
+          <button type="button" data-jump-section="sec-ch9-unit9-principles" class="fc-goto-btn text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 self-start">பாடத்திற்குச் செல்க →</button>
+        </div>
+
+        <!-- Chapter 10 -->
+        <div class="flashcard-item p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 flex flex-col justify-between gap-2.5 shadow-sm" data-fc-chapter="ch10">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="flashcard-tag bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">அத்தியாயம் 10 • பயோடெக் பயன்பாடுகள்</span>
+              <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">Gen-Tech</span>
+            </div>
+            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-sm mb-1.5">Bt பருத்தி, மரபணு சிகிச்சை &amp; ரோசி பசு</h4>
+            <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+              • <strong>Bt பருத்தி:</strong> பேசிலஸ் துரிஞ்சியென்சிஸ் ($cryIAc, cryIIAb$ உருண்டைப்புழு கட்டுப்பாடு).<br/>
+              • <strong>மனித இன்சுலின் (ஹியூமுலின்):</strong> 1983-ல் எலி லில்லி நிறுவனம் E. coli-ல் சங்கிலி A &amp; B-ஐ டைசல்பைடு பிணைப்புகளுடன் உருவாக்கியது.<br/>
+              • <strong>மரபணு சிகிச்சை (1990):</strong> 4 வயது சிறுமிக்கு அடினோசின் டிஅமினேஸ் (ADA) குறைபாட்டுக்கு சிகிச்சை.<br/>
+              • <strong>ரோசி (Rosie - 1997):</strong> மனித ஆல்பா-லாக்டல்புமின் செறிவூட்டப்பட்ட பால் தந்த முதல் மரபணு மாற்றப் பசு.
+            </p>
+          </div>
+          <button type="button" data-jump-section="sec-ch10-agriculture" class="fc-goto-btn text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 self-start">பாடத்திற்குச் செல்க →</button>
+        </div>
+
+        <!-- Chapter 11 -->
+        <div class="flashcard-item p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 flex flex-col justify-between gap-2.5 shadow-sm" data-fc-chapter="ch11">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="flashcard-tag bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">அத்தியாயம் 11 • உயிரினங்கள் &amp; இனத்தொகை</span>
+              <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">Ecology</span>
+            </div>
+            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-sm mb-1.5">வளர்ச்சி மாதிரிகள் &amp; இனத்தொகை இடைவினைகள்</h4>
+            <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+              • <strong>அடுக்குக்குறி வளர்ச்சி:</strong> $\frac{dN}{dt} = rN$ (J-வடிவ வளைவு, எல்லையற்ற வளம்).<br/>
+              • <strong>லாஜிஸ்டிக் வளர்ச்சி (வெர்ஹல்ஸ்ட்-பெர்ல்):</strong> $\frac{dN}{dt} = rN\left(\frac{K-N}{K}\right)$ (S-வடிவ சிக்மாய்டு வளைவு, தாங்கும் திறன் $K$).<br/>
+              • <strong>இடைவினைகள்:</strong> கூட்டுயிர் வாழ்க்கை $(+,+)$ எ.கா. லைக்கன்கள், பூஞ்சைவேர்கள்; கமென்சாலிசம் $(+,0)$ எ.கா. மரப்பொந்து ஆர்க்கிட்கள்; ஒட்டுண்ணித்தன்மை $(+,-)$ எ.கா. கஸ்குடா; அமென்சாலிசம் $(-,0)$ எ.கா. பெனிசிலியம் &amp; பாக்டீரியா.
+            </p>
+          </div>
+          <button type="button" data-jump-section="sec-ch11-unit10-attributes" class="fc-goto-btn text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 self-start">பாடத்திற்குச் செல்க →</button>
+        </div>
+
+        <!-- Chapter 12 -->
+        <div class="flashcard-item p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 flex flex-col justify-between gap-2.5 shadow-sm" data-fc-chapter="ch12">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="flashcard-tag bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">அத்தியாயம் 12 • சூழ்நிலைமண்டலம்</span>
+              <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">Bioenergetics</span>
+            </div>
+            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-sm mb-1.5">உற்பத்தித்திறன் &amp; 10 சதவீத ஆற்றல் விதி</h4>
+            <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+              • <strong>முதன்மை உற்பத்தித்திறன்:</strong> $NPP = GPP - R$ (நிகர உற்பத்தித்திறன் = மொத்த உற்பத்தித்திறன் - சுவாச இழப்பு).<br/>
+              • <strong>10% விதி (லின்ட்மேன் - 1942):</strong> ஓர் ஊட்ட மட்டத்திலிருந்து அடுத்த ஊட்ட மட்டத்திற்கு 10% ஆற்றல் மட்டுமே மாற்றப்படுகிறது.<br/>
+              • <strong>சூழ்நிலையியல் பிரமிடுகள்:</strong> ஆற்றல் பிரமிடு எப்போதும் நேரானது (Inverted ஆகாது); கடல் உயிர்த்திரள் பிரமிடு தலைகீழானது (பைட்டோபிளாங்க்டன் $	o$ பெரிய மீன்கள்).
+            </p>
+          </div>
+          <button type="button" data-jump-section="sec-ch12-structure-productivity" class="fc-goto-btn text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 self-start">பாடத்திற்குச் செல்க →</button>
+        </div>
+
+        <!-- Chapter 13 -->
+        <div class="flashcard-item p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 flex flex-col justify-between gap-2.5 shadow-sm" data-fc-chapter="ch13">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="flashcard-tag bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">அத்தியாயம் 13 • பல்லுயிர்த்தன்மை</span>
+              <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">Conservation</span>
+            </div>
+            <h4 class="font-extrabold text-slate-900 dark:text-slate-100 text-sm mb-1.5">சிற்றின-பரப்பளவு &amp; பல்லுயிர் பாதுகாப்பு</h4>
+            <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+              • <strong>ராபர்ட் மே மதிப்பீடு:</strong> பூமியில் சுமார் 7 மில்லியன் உயிரின சிற்றினங்கள் உள்ளன.<br/>
+              • <strong>அலெக்சாண்டர் வான் ஹம்போல்ட்:</strong> $\log S = \log C + Z \log A$ (சிற்றின-பரப்பளவு செவ்வக அதிபரவளைய தொடர்பு).<br/>
+              • <strong>அழிவின் நான்கு காரணிகள் (The Evil Quartet):</strong> வாழிட இழப்பு, அதிக சுரண்டல், அயல் சிற்றின ஆக்கிரமிப்பு, இணை அழிவு.<br/>
+              • <strong>பாதுகாப்பு:</strong> உள் வாழிடப் பாதுகாப்பு (தேசிய பூங்காக்கள், சரணாலயங்கள், புனிதத் தோப்புகள்); வெளி வாழிடப் பாதுகாப்பு (தாவரவியல் பூங்கா, விலங்கியல் பூங்கா, விந்து/விதை வங்கி, கிரையோபிரிசர்வேஷன் $-196^{\circ}\text{C}$).
+            </p>
+          </div>
+          <button type="button" data-jump-section="sec-ch13-biodiversity-patterns" class="fc-goto-btn text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 self-start">பாடத்திற்குச் செல்க →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bookmarks Dedicated Print Area -->
+  <div id="bookmarksPrintArea" class="hidden"></div>
 
 </body>
 </html>
