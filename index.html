@@ -929,130 +929,17 @@
           <span id="audioReaderIcon">🔊</span><span class="hidden sm:inline" id="audioReaderLabel">குரல் வாசிப்பு</span>
         </button>
 
-        <!-- Tamil Teacher Voice Settings Button -->
+        <!-- Reading Speed Control Button (வாசிப்பு வேகம்) -->
         <button
-          id="btnAudioSettings"
+          id="btnAudioSpeed"
           type="button"
-          title="தமிழகப் பெண் ஆசிரியை குரல் அமைப்புகள் (Tamil Teacher Voice Settings)"
-          class="shrink-0 whitespace-nowrap px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-800 hover:bg-emerald-700 text-amber-200 border border-emerald-600 transition flex items-center gap-1.5"
+          title="வாசிப்பு வேகம் (Reading Speed: 1.0x, 1.25x, 1.5x, 0.9x)"
+          class="shrink-0 whitespace-nowrap px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-800 hover:bg-emerald-700 text-amber-300 border border-emerald-600 transition flex items-center gap-1"
         >
-          <span>👩‍🏫</span><span class="hidden md:inline">ஆசிரியை குரல்</span>
+          <span>⚡</span><span id="audioSpeedLabel">1.0x</span>
         </button>
 
-        <!-- Tamil Teacher Voice Settings Modal (நேரடி ஆசிரியை குரல் அமைப்புகள்) -->
-  <div
-    id="audioSettingsModal"
-    class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 no-print"
-  >
-    <div class="bg-white dark:bg-slate-900 w-full max-w-xl max-h-[90vh] rounded-2xl shadow-2xl border-2 border-emerald-600 flex flex-col overflow-hidden">
-      <!-- Modal Header -->
-      <div class="px-5 py-3.5 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white flex items-center justify-between gap-3 shrink-0">
-        <div class="flex items-center gap-2.5">
-          <span class="text-2xl">👩‍🏫</span>
-          <div>
-            <h3 class="text-sm sm:text-base font-extrabold text-amber-300">நேரடித் தமிழ் பெண் ஆசிரியை குரல் அமைப்புகள்</h3>
-            <p class="text-[11px] text-emerald-100 font-medium">Direct Autonomous Tamil Female Voice (No Voice Installation Required)</p>
-          </div>
-        </div>
-        <button
-          id="closeAudioSettingsBtn"
-          type="button"
-          class="w-8 h-8 rounded-full bg-emerald-800 hover:bg-emerald-700 text-emerald-100 hover:text-white flex items-center justify-center font-bold text-lg transition"
-          title="மூடுக"
-        >×</button>
-      </div>
-
-      <!-- Modal Body -->
-      <div class="p-5 overflow-y-auto space-y-4 text-xs sm:text-sm text-slate-800 dark:text-slate-100">
-        <!-- Direct Audio Highlight Card -->
-        <div class="p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50 shadow-sm">
-          <div class="flex items-start gap-3">
-            <span class="text-2xl mt-0.5">✨</span>
-            <div>
-              <h4 class="font-extrabold text-emerald-950 dark:text-amber-300 text-xs sm:text-sm mb-1">
-                நேரடி ஆடியோ முறை இயக்கப்பட்டுள்ளது (No Setup Needed)
-              </h4>
-              <p class="text-[11px] sm:text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
-                மாணவர்கள் தங்கள் மொபைல் போன்களிலோ அல்லது கணினிகளிலோ <strong>எந்தவொரு குரல் அமைப்பையும் அல்லது ஆப்ஸையும் நிறுவத் தேவையில்லை!</strong> எந்தப் பாடப்பகுதியிலும் உள்ள <strong>"🔊 வாசி"</strong> பொத்தானைத் தொட்டவுடன் இணைய நேரடி ஆடியோ மூலம் தூய தமிழ் பெண் ஆசிரியை குரல் தானாகவே ஒலிக்கும்.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Engine Mode Selection -->
-        <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
-          <span class="font-bold text-slate-900 dark:text-white block mb-2">🎙️ குரல் ஒலிப்புத் தொழில்நுட்பம் (Voice Technology):</span>
-          <div class="space-y-2">
-            <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-emerald-50/50">
-              <input type="radio" name="speechEngineRadio" value="direct" class="mt-0.5 accent-emerald-600" checked>
-              <div>
-                <strong class="text-emerald-900 dark:text-emerald-300 font-bold block">நேரடி இணைய ஆசிரியை குரல் (பரிந்துரைக்கப்படுகிறது)</strong>
-                <span class="text-[11px] text-slate-600 dark:text-slate-300">சாதனத்தில் எதையும் நிறுவத் தேவையின்றி, அனைத்து ஸ்மார்ட்போன்களிலும் உடனடியாக இயங்கும் இயற்கையான தமிழ் பெண் குரல்.</span>
-              </div>
-            </label>
-            <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-emerald-50/50">
-              <input type="radio" name="speechEngineRadio" value="webspeech" class="mt-0.5 accent-emerald-600">
-              <div>
-                <strong class="text-slate-900 dark:text-white font-bold block">சாதன உள்ளமைந்த குரல் (Device Web Speech)</strong>
-                <span class="text-[11px] text-slate-600 dark:text-slate-300">உங்கள் கணினி அல்லது போனில் நிறுவப்பட்டுள்ள உள்ளூர் ஆஃப்லைன் தமிழ் குரல் (எ.கா: Microsoft Kani, Apple Vani).</span>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <!-- Reading Mode Radio Buttons -->
-        <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
-          <span class="font-bold text-slate-900 dark:text-white block mb-2">📖 வாசிப்பு முறை (Reading Mode):</span>
-          <div class="space-y-2">
-            <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-emerald-50/50">
-              <input type="radio" name="speechModeRadio" value="pure_tamil" class="mt-0.5 accent-emerald-600" checked>
-              <div>
-                <strong class="text-emerald-900 dark:text-emerald-300 font-bold block">தூய தமிழ் ஆசிரியை வாசிப்பு (பரிந்துரைக்கப்படுகிறது)</strong>
-                <span class="text-[11px] text-slate-600 dark:text-slate-300">ஆங்கில அடைப்புக் குறி சொற்களைத் தவிர்த்து, முழுமையான பாடப்பகுதியையும் தெளிவான தமிழ் ஆசிரியை நடையில் வாசிக்கும்.</span>
-              </div>
-            </label>
-            <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-emerald-50/50">
-              <input type="radio" name="speechModeRadio" value="bilingual" class="mt-0.5 accent-emerald-600">
-              <div>
-                <strong class="text-slate-900 dark:text-white font-bold block">இருமொழி வாசிப்பு (Bilingual)</strong>
-                <span class="text-[11px] text-slate-600 dark:text-slate-300">தமிழோடு சேர்த்து ஆங்கிலக் கலைச்சொற்களையும் (Scientific Terms) வாசிக்கும்.</span>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <!-- Voice Rate Control -->
-        <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
-          <label for="voiceRateRange" class="block font-bold text-slate-900 dark:text-white text-xs mb-1">
-            🐢 வாசிப்பு வேகம்: <span id="voiceRateVal" class="text-emerald-700 dark:text-amber-300">0.90x (நிதானமான ஆசிரியை கற்பித்தல் நடை)</span>
-          </label>
-          <input type="range" id="voiceRateRange" min="0.75" max="1.15" step="0.05" value="0.90" class="w-full accent-emerald-600">
-        </div>
-
-        <!-- Test Speech Button -->
-        <button
-          id="btnTestTeacherVoice"
-          type="button"
-          class="w-full py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white shadow-md transition flex items-center justify-center gap-2"
-        >
-          <span>🔊</span> <span>மாதிரி ஆசிரியை குரலைக் கேட்க (Test Teacher Voice)</span>
-        </button>
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="p-3.5 bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex justify-end">
-        <button
-          id="saveAudioSettingsBtn"
-          type="button"
-          class="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-800 hover:bg-emerald-700 text-white shadow transition"
-        >
-          அமைப்புகளைச் சேமி (Save Settings)
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quick Revision Flashcards Modal Button -->
+        <!-- Quick Revision Flashcards Modal Button -->
         <button
           id="btnOpenFlashcards"
           type="button"
@@ -1713,7 +1600,7 @@
 <span class="bilingual-term">மறைமுகப் பிரிவு செல்பகுப்பு <span class="eng-paren">(Mitotic cell division)</span></span> நிகழ்வுகளின் அடிப்படையில் அமையும் பாலிலா இனப்பெருக்கத்தை விட, <span class="bilingual-term">இனச்செல்களின் உருவாக்கம் மற்றும் இணைவு <span class="eng-paren">(Formation and fusion of gametes)</span></span> கொள்கையின் அடிப்படையில் அமையும் பாலினப் பெருக்கம் மிகவும் மேம்பட்ட முறையாகும். பாலினப் பெருக்கமானது பொதுவாகப் <span class="bilingual-term">பண்புகள் மாறுபடும் சந்ததிகளை <span class="eng-paren">(Variable progeny)</span></span> உருவாக்குவதால், அவை உயிர்வாழ்வதற்கான சிறந்த வாய்ப்புகளைப் பெறுகின்றன.
           </p>
 <p>
-<span class="bilingual-term">பூக்கும் தாவரங்கள் <span class="eng-paren">(Flowering plants / Angiosperms)</span></span> மிகவும் வியப்பூட்டும் வகையில் இனப்பெருக்கத்திற்குத் தேவையான பல்வேறு தகவமைப்புகளை வெளிப்படுத்துகின்றன. இத்தாவரங்களில் <span class="bilingual-term">வி형 இனச்செல்கள் <span class="eng-paren">(Heterogametes)</span></span> உருவாக்கமும் அவற்றின் இணைவும் மிக நுணுக்கமான செயலமைப்புகளை உள்ளடக்கியுள்ளன. <span class="bilingual-term">மகரந்தத்துகள் மற்றும் முட்டைச் செல்லின் <span class="eng-paren">(Pollen and Egg)</span></span> அமைப்பு, மேலும் அவை இணைந்து <span class="bilingual-term">கரு மற்றும் விதை <span class="eng-paren">(Embryo and Seed)</span></span> உருவாகும் செயல்முறைகள் ஆகியவை இப்பாடப்பகுதியில் விரிவாக விளக்கப்பட்டுள்ளன. மனித இனப்பெருக்கத்திலும் இத்தகைய விந்தையான நிகழ்வுகள் காணப்படுகின்றன. இனப்பெருக்க நலன் குறித்த விழிப்புணர்வு இல்லாமல் மனித இனப்பெருக்கப் பாடம் முழுமையடையாது என்பதால், இனப்பெருக்க நலன் பற்றிய தகவல்களும் இப்பாட அலகில் சேர்க்கப்பட்டுள்ளன.
+<span class="bilingual-term">பூக்கும் தாவரங்கள் <span class="eng-paren">(Flowering plants / Angiosperms)</span></span> மிகவும் வியப்பூட்டும் வகையில் இனப்பெருக்கத்திற்குத் தேவையான பல்வேறு தகவமைப்புகளை வெளிப்படுத்துகின்றன. இத்தாவரங்களில் <span class="bilingual-term">மாறுபட்ட இனச்செல்கள் <span class="eng-paren">(Heterogametes)</span></span> உருவாக்கமும் அவற்றின் இணைவும் மிக நுணுக்கமான செயலமைப்புகளை உள்ளடக்கியுள்ளன. <span class="bilingual-term">மகரந்தத்துகள் மற்றும் முட்டைச் செல்லின் <span class="eng-paren">(Pollen and Egg)</span></span> அமைப்பு, மேலும் அவை இணைந்து <span class="bilingual-term">கரு மற்றும் விதை <span class="eng-paren">(Embryo and Seed)</span></span> உருவாகும் செயல்முறைகள் ஆகியவை இப்பாடப்பகுதியில் விரிவாக விளக்கப்பட்டுள்ளன. மனித இனப்பெருக்கத்திலும் இத்தகைய விந்தையான நிகழ்வுகள் காணப்படுகின்றன. இனப்பெருக்க நலன் குறித்த விழிப்புணர்வு இல்லாமல் மனித இனப்பெருக்கப் பாடம் முழுமையடையாது என்பதால், இனப்பெருக்க நலன் பற்றிய தகவல்களும் இப்பாட அலகில் சேர்க்கப்பட்டுள்ளன.
           </p>
 </div>
 </div>
@@ -13925,6 +13812,18 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
     </button>
   </nav>
 
+  <!-- Floating Text Selection Audio Pill (தேர்வு செய்த உரையை வாசிக்கும் மிதக்கும் பலகை) -->
+  <div
+    id="selectionAudioPill"
+    class="fixed z-50 hidden items-center gap-2 px-3.5 py-2 rounded-full bg-emerald-950/95 text-white border-2 border-amber-400 shadow-2xl backdrop-blur transition-all duration-200 no-print"
+    style="box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(245, 158, 11, 0.3);"
+  >
+    <button id="btnPlaySelection" type="button" class="flex items-center gap-1.5 text-xs font-extrabold text-amber-300 hover:text-white transition cursor-pointer">
+      <span id="selectionAudioIcon">🔊</span> <span id="selectionAudioText">தேர்வு செய்ததை வாசி</span>
+    </button>
+    <button id="btnCloseSelectionPill" type="button" class="text-xs text-emerald-300 hover:text-white ml-1 font-bold p-1 cursor-pointer" title="மூடுக">✕</button>
+  </div>
+
   <!-- Floating Back-to-Top Button -->
   <button
     id="backToTopBtn"
@@ -14527,75 +14426,52 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
       }
 
       // -------------------------------------------------------------------
-      // 4. Feature 1: Autonomous Dual-Engine Lesson Voice Reader (நேரடி ஆசிரியை குரல் அமைப்பு)
+      // 4. Feature 1: Direct Cloud Audio Reader (நேரடி ஆடியோ & பைலிங்குவல் வாசிப்பு)
       // -------------------------------------------------------------------
       // Note: activeSpeechState and currentAudioCard are declared at the top of the scope
       const btnAudioReader = document.getElementById('btnAudioReader');
-      const btnAudioSettings = document.getElementById('btnAudioSettings');
-      const audioSettingsModal = document.getElementById('audioSettingsModal');
-      const closeAudioSettingsBtn = document.getElementById('closeAudioSettingsBtn');
-      const saveAudioSettingsBtn = document.getElementById('saveAudioSettingsBtn');
-      const voiceRateRange = document.getElementById('voiceRateRange');
-      const voiceRateVal = document.getElementById('voiceRateVal');
-      const btnTestTeacherVoice = document.getElementById('btnTestTeacherVoice');
-      const speechModeRadios = document.querySelectorAll('input[name="speechModeRadio"]');
-      const speechEngineRadios = document.querySelectorAll('input[name="speechEngineRadio"]');
+      const btnAudioSpeed = document.getElementById('btnAudioSpeed');
+      const audioSpeedLabel = document.getElementById('audioSpeedLabel');
+      const selectionAudioPill = document.getElementById('selectionAudioPill');
+      const btnPlaySelection = document.getElementById('btnPlaySelection');
+      const btnCloseSelectionPill = document.getElementById('btnCloseSelectionPill');
+      const selectionAudioIcon = document.getElementById('selectionAudioIcon');
+      const selectionAudioText = document.getElementById('selectionAudioText');
 
-      let speechEngine = 'direct'; // 'direct' (online direct audio - NO INSTALL NEEDED) | 'webspeech'
-      let speechReadingMode = 'pure_tamil'; // 'pure_tamil' (default) | 'bilingual'
-      let speechRate = 0.90; // Measured educational pace
+      const audioSpeeds = [1.0, 1.25, 1.5, 0.9];
+      let speechRate = 1.0; // Default 1.0x speed
       let directAudioPlayer = null;
+      let currentSelectionText = '';
+      let isSelectionPlaying = false;
 
       try {
-        const savedEngine = localStorage.getItem('ncert12_speech_engine');
-        if (savedEngine === 'direct' || savedEngine === 'webspeech') speechEngine = savedEngine;
-        const savedMode = localStorage.getItem('ncert12_speech_mode');
-        if (savedMode === 'pure_tamil' || savedMode === 'bilingual') speechReadingMode = savedMode;
-        const savedRate = localStorage.getItem('ncert12_speech_rate');
-        if (savedRate) speechRate = parseFloat(savedRate) || 0.90;
+        const savedRate = localStorage.getItem('ncert12_audio_speed');
+        if (savedRate && !isNaN(parseFloat(savedRate))) {
+          speechRate = parseFloat(savedRate);
+        }
       } catch (e) {}
 
       function getDirectAudioUrl(text) {
         return 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ta&client=tw-ob&q=' + encodeURIComponent(text.trim());
       }
 
-      function getTamilVoice(preferFemale) {
-        if (!('speechSynthesis' in window)) return null;
-        const allVoices = window.speechSynthesis.getVoices() || [];
-        const tamilVoices = allVoices.filter(function (v) {
-          const l = (v.lang || '').toLowerCase().replace('_', '-');
-          const n = (v.name || '').toLowerCase();
-          return l.startsWith('ta') || n.includes('tamil') || n.includes('தமிழ்');
-        });
-        if (tamilVoices.length === 0) return null;
-
-        if (preferFemale !== false) {
-          const kani = tamilVoices.find(function (v) { return v.name.toLowerCase().includes('kani'); });
-          if (kani) return kani;
-          const vani = tamilVoices.find(function (v) { return v.name.toLowerCase().includes('vani'); });
-          if (vani) return vani;
-          const googleTa = tamilVoices.find(function (v) {
-            const s = (v.name + ' ' + v.voiceURI).toLowerCase();
-            return s.includes('google') || s.includes('தமிழ்');
-          });
-          if (googleTa) return googleTa;
-          const anyFemale = tamilVoices.find(function (v) {
-            const s = (v.name + ' ' + v.voiceURI).toLowerCase();
-            return s.includes('female') || s.includes('taf') || s.includes('woman') || s.includes('பெண்');
-          });
-          if (anyFemale) return anyFemale;
+      function syncSpeedUI() {
+        if (audioSpeedLabel) {
+          audioSpeedLabel.textContent = speechRate.toFixed(speechRate === 1.0 ? 1 : 2).replace('.00', '.0') + 'x';
         }
-        return tamilVoices[0];
+        if (directAudioPlayer) {
+          try { directAudioPlayer.playbackRate = speechRate; } catch (e) {}
+        }
       }
 
-      function updateVoiceSettingsUI() {
-        if (voiceRateRange) voiceRateRange.value = speechRate;
-        if (voiceRateVal) voiceRateVal.textContent = speechRate.toFixed(2) + 'x (' + (speechRate <= 0.9 ? 'நிதானம்' : 'இயல்பு') + ')';
-        speechModeRadios.forEach(function (r) {
-          r.checked = (r.value === speechReadingMode);
-        });
-        speechEngineRadios.forEach(function (r) {
-          r.checked = (r.value === speechEngine);
+      if (btnAudioSpeed) {
+        syncSpeedUI();
+        btnAudioSpeed.addEventListener('click', function () {
+          let idx = audioSpeeds.indexOf(speechRate);
+          idx = (idx + 1) % audioSpeeds.length;
+          speechRate = audioSpeeds[idx];
+          syncSpeedUI();
+          try { localStorage.setItem('ncert12_audio_speed', speechRate.toString()); } catch (e) {}
         });
       }
 
@@ -14608,15 +14484,17 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
             directAudioPlayer.src = '';
           } catch (e) {}
         }
-        if (!resetUIOnly && 'speechSynthesis' in window) {
-          try { window.speechSynthesis.cancel(); } catch (e) {}
-        }
         if (activeSpeechState && activeSpeechState.card && activeSpeechState.btn) {
           activeSpeechState.card.classList.remove('speaking-card', 'speaking-card-paused');
           activeSpeechState.btn.classList.remove('is-playing', 'is-paused');
           activeSpeechState.btn.className = 'card-audio-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-white/90 dark:bg-slate-800 text-emerald-950 dark:text-amber-300 border border-emerald-600/40 hover:bg-emerald-50 dark:hover:bg-slate-700 transition no-print shrink-0 flex items-center gap-1.5 cursor-pointer shadow-sm';
           activeSpeechState.btn.innerHTML = '<span class="audio-state-icon">🔊</span><span class="audio-state-text">வாசி</span>';
           activeSpeechState.btn.title = 'இப்பாடப்பகுதியை வாசிக்க (Read Lesson Aloud)';
+        }
+        if (isSelectionPlaying) {
+          isSelectionPlaying = false;
+          if (selectionAudioIcon) selectionAudioIcon.textContent = '🔊';
+          if (selectionAudioText) selectionAudioText.textContent = 'தேர்வு செய்ததை வாசி';
         }
         activeSpeechState = null;
         currentAudioCard = null;
@@ -14640,26 +14518,12 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           el.remove();
         });
 
-        // Pure Tamil Teacher Mode: remove English parenthetical terms (.eng-paren)
-        if (speechReadingMode === 'pure_tamil') {
-          clone.querySelectorAll('.eng-paren').forEach(function (el) {
-            el.remove();
-          });
-        }
-
-        let text = (clone.innerText || clone.textContent || '');
-
-        if (speechReadingMode === 'pure_tamil') {
-          // Remove leftover English words in parentheses like (DNA) or (Figure 1.1)
-          text = text.replace(/\([A-Za-z0-9\s,\.\-–\/]+\)/g, ' ');
-          // Remove standalone figure references
-          text = text.replace(/படம்\s*\d+[\.\d]*[a-z]*/gi, '');
-        }
-
-        text = text
+        // Bilingual mode: retain both Tamil and English words!
+        let text = (clone.innerText || clone.textContent || '')
           .replace(/\[\s*Image\s*[^\]]*\]/gi, '')
           .replace(/https?:\/\/\S+/g, '')
-          .replace(/[•★⭐📌\(\)\{\}\[\]\<\>\|]/g, ' ')
+          .replace(/படம்\s*\d+[\.\d]*[a-z]*/gi, '')
+          .replace(/[•★⭐📌\<\>\|]/g, ' ')
           .replace(/\s+/g, ' ')
           .trim();
         return text;
@@ -14709,6 +14573,12 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           return;
         }
 
+        if (!navigator.onLine) {
+          stopCardAudio(false);
+          alert('⚠️ இணைய இணைப்பு இல்லை. நேரடி குரல் வாசிப்பிற்கு இணைய இணைப்பு அவசியம்.');
+          return;
+        }
+
         const chunkText = activeSpeechState.chunks[activeSpeechState.index];
         const audioUrl = getDirectAudioUrl(chunkText);
 
@@ -14726,14 +14596,12 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         };
 
         directAudioPlayer.onerror = function (e) {
-          console.warn('Direct audio stream failed, falling back to Web Speech API');
-          if (activeSpeechState) {
-            activeSpeechState.engine = 'webspeech';
-            speakNextWebSpeechChunk();
-          }
+          console.warn('Direct audio stream failed / offline');
+          stopCardAudio(false);
+          alert('⚠️ இணைய இணைப்பு துண்டிக்கப்பட்டது அல்லது ஆடியோ சேவை கிடைக்கவில்லை. குரல் வாசிப்பு நிறுத்தப்பட்டது.');
         };
 
-        // Pre-buffer next chunk for seamless gapless playback
+        // Pre-buffer next chunk for smooth gapless playback
         if (activeSpeechState.index + 1 < activeSpeechState.chunks.length) {
           try {
             const nextUrl = getDirectAudioUrl(activeSpeechState.chunks[activeSpeechState.index + 1]);
@@ -14745,52 +14613,9 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         const playPromise = directAudioPlayer.play();
         if (playPromise !== undefined) {
           playPromise.catch(function (err) {
-            console.warn('Direct audio play error, trying Web Speech:', err);
-            if (activeSpeechState) {
-              activeSpeechState.engine = 'webspeech';
-              speakNextWebSpeechChunk();
-            }
+            console.warn('Direct audio play error:', err);
+            stopCardAudio(false);
           });
-        }
-      }
-
-      function speakNextWebSpeechChunk() {
-        if (!activeSpeechState || activeSpeechState.paused) return;
-        if (activeSpeechState.index >= activeSpeechState.chunks.length) {
-          stopCardAudio(true);
-          return;
-        }
-
-        const chunkText = activeSpeechState.chunks[activeSpeechState.index];
-        const utter = new SpeechSynthesisUtterance(chunkText);
-        utter.lang = 'ta-IN';
-
-        const v = getTamilVoice(true);
-        if (v) utter.voice = v;
-        utter.pitch = 1.15;
-        utter.rate = speechRate;
-
-        utter.onend = function () {
-          if (!activeSpeechState || activeSpeechState.paused) return;
-          activeSpeechState.index++;
-          speakNextWebSpeechChunk();
-        };
-
-        utter.onerror = function (e) {
-          if (!activeSpeechState || activeSpeechState.paused) return;
-          activeSpeechState.index++;
-          speakNextWebSpeechChunk();
-        };
-
-        window.speechSynthesis.speak(utter);
-      }
-
-      function playNextSpeechChunk() {
-        if (!activeSpeechState || activeSpeechState.paused) return;
-        if (activeSpeechState.engine === 'direct') {
-          playNextDirectAudioChunk();
-        } else {
-          speakNextWebSpeechChunk();
         }
       }
 
@@ -14811,28 +14636,16 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
             const _ic = document.getElementById('audioReaderIcon'); if (_ic) _ic.textContent = '⏸️';
             const _lb = document.getElementById('audioReaderLabel'); if (_lb) _lb.textContent = 'இடைநிறுத்து';
 
-            if (activeSpeechState.engine === 'direct') {
-              if (directAudioPlayer && directAudioPlayer.src) {
-                directAudioPlayer.play().catch(function () { playNextDirectAudioChunk(); });
-              } else {
-                playNextDirectAudioChunk();
-              }
+            if (directAudioPlayer && directAudioPlayer.src) {
+              directAudioPlayer.play().catch(function () { playNextDirectAudioChunk(); });
             } else {
-              if (window.speechSynthesis.paused) {
-                try { window.speechSynthesis.resume(); } catch (e) {}
-              } else {
-                speakNextWebSpeechChunk();
-              }
+              playNextDirectAudioChunk();
             }
           } else {
             // Pause
             activeSpeechState.paused = true;
-            if (activeSpeechState.engine === 'direct') {
-              if (directAudioPlayer) {
-                try { directAudioPlayer.pause(); } catch (e) {}
-              }
-            } else {
-              try { window.speechSynthesis.pause(); } catch (e) {}
+            if (directAudioPlayer) {
+              try { directAudioPlayer.pause(); } catch (e) {}
             }
             card.classList.remove('speaking-card');
             card.classList.add('speaking-card-paused');
@@ -14851,13 +14664,18 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         // 2. New card or fresh start
         stopCardAudio(false);
 
+        if (!navigator.onLine) {
+          alert('⚠️ இணைய இணைப்பு இல்லை. நேரடி ஆடியோ குரல் வாசிப்பிற்கு இணைய இணைப்பு அவசியம்.');
+          return;
+        }
+
         const cardText = extractCardSpeechText(card);
         if (!cardText) {
           alert('இப்பாடப்பகுதியில் வாசிப்பதற்கான உரை கண்டறியப்படவில்லை.');
           return;
         }
 
-        const chunks = splitTextIntoSpeechChunks(cardText, 110);
+        const chunks = splitTextIntoSpeechChunks(cardText, 115);
         if (chunks.length === 0) return;
 
         activeSpeechState = {
@@ -14865,8 +14683,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           btn: btn,
           chunks: chunks,
           index: 0,
-          paused: false,
-          engine: speechEngine
+          paused: false
         };
         currentAudioCard = card;
 
@@ -14883,7 +14700,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           btnAudioReader.classList.add('bg-amber-400', 'text-emerald-950');
         }
 
-        playNextSpeechChunk();
+        playNextDirectAudioChunk();
       }
 
       if (btnAudioReader) {
@@ -14905,87 +14722,129 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         });
       }
 
-      // Audio Settings Modal Listeners
-      if (btnAudioSettings && audioSettingsModal) {
-        btnAudioSettings.addEventListener('click', function () {
-          updateVoiceSettingsUI();
-          audioSettingsModal.classList.remove('hidden');
-        });
-      }
-      if (closeAudioSettingsBtn && audioSettingsModal) {
-        closeAudioSettingsBtn.addEventListener('click', function () {
-          audioSettingsModal.classList.add('hidden');
-        });
-      }
-      if (audioSettingsModal) {
-        audioSettingsModal.addEventListener('click', function (e) {
-          if (e.target === audioSettingsModal) audioSettingsModal.classList.add('hidden');
-        });
-      }
-      if (saveAudioSettingsBtn && audioSettingsModal) {
-        saveAudioSettingsBtn.addEventListener('click', function () {
-          if (voiceRateRange) speechRate = parseFloat(voiceRateRange.value) || 0.90;
-          const selectedMode = document.querySelector('input[name="speechModeRadio"]:checked');
-          if (selectedMode) speechReadingMode = selectedMode.value;
-          const selectedEng = document.querySelector('input[name="speechEngineRadio"]:checked');
-          if (selectedEng) speechEngine = selectedEng.value;
-
-          try {
-            localStorage.setItem('ncert12_speech_mode', speechReadingMode);
-            localStorage.setItem('ncert12_speech_engine', speechEngine);
-            localStorage.setItem('ncert12_speech_rate', speechRate.toString());
-          } catch (e) {}
-
-          audioSettingsModal.classList.add('hidden');
-        });
-      }
-
-      if (voiceRateRange && voiceRateVal) {
-        voiceRateRange.addEventListener('input', function () {
-          const val = parseFloat(voiceRateRange.value);
-          voiceRateVal.textContent = val.toFixed(2) + 'x (' + (val <= 0.9 ? 'நிதானம்' : 'இயல்பு') + ')';
-        });
-      }
-
-      if (btnTestTeacherVoice) {
-        btnTestTeacherVoice.addEventListener('click', function () {
+      // -------------------------------------------------------------------
+      // Text Selection Reader (தேர்வு செய்த உரையை மட்டும் வாசிக்கும் வசதி)
+      // -------------------------------------------------------------------
+      function hideSelectionPill() {
+        if (selectionAudioPill) selectionAudioPill.classList.add('hidden');
+        if (isSelectionPlaying) {
           stopCardAudio(false);
-          const testText = "வணக்கம் மாணவர்களே! நான் உங்கள் உயிரியல் ஆசிரியை. 12-ஆம் வகுப்பு உயிரியல் பாடப்பகுதிகளை உங்களுக்காக தமிழில் தெளிவாக வாசிக்கிறேன்.";
-          const selectedEng = document.querySelector('input[name="speechEngineRadio"]:checked');
-          const eng = selectedEng ? selectedEng.value : speechEngine;
+          isSelectionPlaying = false;
+          if (selectionAudioIcon) selectionAudioIcon.textContent = '🔊';
+          if (selectionAudioText) selectionAudioText.textContent = 'தேர்வு செய்ததை வாசி';
+        }
+      }
 
-          if (eng === 'direct') {
-            const audioUrl = getDirectAudioUrl(testText);
-            if (!directAudioPlayer) directAudioPlayer = new Audio();
-            directAudioPlayer.src = audioUrl;
-            try { directAudioPlayer.playbackRate = voiceRateRange ? (parseFloat(voiceRateRange.value) || 0.90) : speechRate; } catch (e) {}
-            directAudioPlayer.play().catch(function () {
-              // fallback
-              if ('speechSynthesis' in window) {
-                const utter = new SpeechSynthesisUtterance(testText);
-                utter.lang = 'ta-IN';
-                const v = getTamilVoice(true);
-                if (v) utter.voice = v;
-                utter.pitch = 1.15;
-                utter.rate = 0.90;
-                window.speechSynthesis.speak(utter);
-              }
-            });
-          } else {
-            if ('speechSynthesis' in window) {
-              const utter = new SpeechSynthesisUtterance(testText);
-              utter.lang = 'ta-IN';
-              const v = getTamilVoice(true);
-              if (v) utter.voice = v;
-              utter.pitch = 1.15;
-              utter.rate = voiceRateRange ? (parseFloat(voiceRateRange.value) || 0.90) : speechRate;
-              window.speechSynthesis.speak(utter);
-            }
-          }
+      if (btnCloseSelectionPill) {
+        btnCloseSelectionPill.addEventListener('click', function (e) {
+          e.stopPropagation();
+          hideSelectionPill();
         });
       }
 
-      updateVoiceSettingsUI();
+      function checkTextSelection() {
+        const sel = window.getSelection();
+        if (!sel || sel.isCollapsed) {
+          if (!isSelectionPlaying && selectionAudioPill) {
+            selectionAudioPill.classList.add('hidden');
+          }
+          return;
+        }
+
+        const txt = sel.toString().trim();
+        if (txt.length < 3) {
+          if (!isSelectionPlaying && selectionAudioPill) {
+            selectionAudioPill.classList.add('hidden');
+          }
+          return;
+        }
+
+        currentSelectionText = txt;
+
+        try {
+          const range = sel.getRangeAt(0);
+          const rect = range.getBoundingClientRect();
+          if (rect.width === 0 && rect.height === 0) return;
+
+          if (selectionAudioPill) {
+            selectionAudioPill.classList.remove('hidden');
+            selectionAudioPill.style.display = 'flex';
+            const pillWidth = 220;
+            let left = rect.left + (rect.width / 2) - (pillWidth / 2);
+            left = Math.max(10, Math.min(window.innerWidth - pillWidth - 10, left));
+            let top = rect.top - 48;
+            if (top < 10) top = rect.bottom + 10;
+            selectionAudioPill.style.left = left + 'px';
+            selectionAudioPill.style.top = top + 'px';
+          }
+        } catch (e) {}
+      }
+
+      document.addEventListener('mouseup', function () {
+        setTimeout(checkTextSelection, 100);
+      });
+      document.addEventListener('touchend', function () {
+        setTimeout(checkTextSelection, 150);
+      });
+
+      if (btnPlaySelection) {
+        btnPlaySelection.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (!currentSelectionText) return;
+
+          if (isSelectionPlaying) {
+            if (activeSpeechState && activeSpeechState.paused) {
+              // Resume
+              activeSpeechState.paused = false;
+              if (directAudioPlayer) directAudioPlayer.play();
+              if (selectionAudioIcon) selectionAudioIcon.textContent = '⏸️';
+              if (selectionAudioText) selectionAudioText.textContent = 'இடைநிறுத்து';
+            } else {
+              // Pause
+              if (activeSpeechState) activeSpeechState.paused = true;
+              if (directAudioPlayer) {
+                try { directAudioPlayer.pause(); } catch (e) {}
+              }
+              if (selectionAudioIcon) selectionAudioIcon.textContent = '▶️';
+              if (selectionAudioText) selectionAudioText.textContent = 'தொடர்க';
+            }
+            return;
+          }
+
+          // Start playing selection
+          stopCardAudio(false);
+
+          if (!navigator.onLine) {
+            alert('⚠️ இணைய இணைப்பு இல்லை. நேரடி ஆடியோ குரல் வாசிப்பிற்கு இணைய இணைப்பு அவசியம்.');
+            return;
+          }
+
+          const cleaned = currentSelectionText
+            .replace(/\[\s*Image\s*[^\]]*\]/gi, '')
+            .replace(/https?:\/\/\S+/g, '')
+            .replace(/[•★⭐📌\<\>\|]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+          const chunks = splitTextIntoSpeechChunks(cleaned, 115);
+          if (chunks.length === 0) return;
+
+          isSelectionPlaying = true;
+          if (selectionAudioIcon) selectionAudioIcon.textContent = '⏸️';
+          if (selectionAudioText) selectionAudioText.textContent = 'இடைநிறுத்து';
+
+          activeSpeechState = {
+            card: null,
+            btn: null,
+            chunks: chunks,
+            index: 0,
+            paused: false,
+            isSelection: true
+          };
+
+          playNextDirectAudioChunk();
+        });
+      }
 
       // -------------------------------------------------------------------
       // 5. Feature 2: Quick Revision Flashcards Modal (திருப்புதல் அட்டைகள்)
