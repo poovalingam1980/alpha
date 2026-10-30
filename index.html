@@ -2,6 +2,7 @@
 <html lang="ta" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
+  <meta name="referrer" content="no-referrer">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NCERT 12-ஆம் வகுப்பு உயிரியல் முழுப் பாடநூல்: பொருளடக்கம் (Contents) &amp; அலகுகள் VI–X முழுமையும் (அத்தியாயங்கள் 1–13 ) | Bilingual Edition (தமிழ் &amp; English)</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
@@ -13812,6 +13813,9 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
     </button>
   </nav>
 
+  <!-- Hidden Direct Cloud Audio Player with no-referrer policy for hosted domains -->
+  <audio id="directCloudAudioEl" referrerpolicy="no-referrer" preload="auto" class="hidden no-print" style="display:none;"></audio>
+
   <!-- Floating Text Selection Audio Pill (தேர்வு செய்த உரையை வாசிக்கும் மிதக்கும் பலகை) -->
   <div
     id="selectionAudioPill"
@@ -14426,7 +14430,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
       }
 
       // -------------------------------------------------------------------
-      // 4. Feature 1: Direct Cloud Audio Reader (நேரடி ஆடியோ & பைலிங்குவல் வாசிப்பு)
+      // 4. Feature 1: Direct Cloud Audio Reader (நேரடி ஆடியோ & பைலிங்குவல் வாசிப்பு - Hosted & Local)
       // -------------------------------------------------------------------
       // Note: activeSpeechState and currentAudioCard are declared at the top of the scope
       const btnAudioReader = document.getElementById('btnAudioReader');
@@ -14440,9 +14444,14 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
 
       const audioSpeeds = [1.0, 1.25, 1.5, 0.9];
       let speechRate = 1.0; // Default 1.0x speed
-      let directAudioPlayer = null;
+      let directAudioPlayer = document.getElementById('directCloudAudioEl');
       let currentSelectionText = '';
       let isSelectionPlaying = false;
+
+      if (directAudioPlayer) {
+        directAudioPlayer.setAttribute('referrerpolicy', 'no-referrer');
+        try { directAudioPlayer.referrerPolicy = 'no-referrer'; } catch (e) {}
+      }
 
       try {
         const savedRate = localStorage.getItem('ncert12_audio_speed');
@@ -14451,8 +14460,14 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         }
       } catch (e) {}
 
-      function getDirectAudioUrl(text) {
-        return 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ta&client=tw-ob&q=' + encodeURIComponent(text.trim());
+      function getDirectAudioUrls(text) {
+        const clean = encodeURIComponent(text.trim());
+        return [
+          'https://translate.google.com/translate_tts?ie=UTF-8&tl=ta&client=tw-ob&q=' + clean,
+          'https://translate.googleapis.com/translate_tts?ie=UTF-8&tl=ta&client=gtx&q=' + clean,
+          'https://translate.google.com/translate_tts?ie=UTF-8&tl=ta&client=gtx&q=' + clean,
+          'https://translate.google.com/translate_tts?ie=UTF-8&tl=ta&client=dict-chrome-ex&q=' + clean
+        ];
       }
 
       function syncSpeedUI() {
@@ -14481,8 +14496,11 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
             directAudioPlayer.pause();
             directAudioPlayer.onended = null;
             directAudioPlayer.onerror = null;
-            directAudioPlayer.src = '';
+            directAudioPlayer.removeAttribute('src');
           } catch (e) {}
+        }
+        if (!resetUIOnly && 'speechSynthesis' in window) {
+          try { window.speechSynthesis.cancel(); } catch (e) {}
         }
         if (activeSpeechState && activeSpeechState.card && activeSpeechState.btn) {
           activeSpeechState.card.classList.remove('speaking-card', 'speaking-card-paused');
@@ -14518,11 +14536,12 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           el.remove();
         });
 
-        // Bilingual mode: retain both Tamil and English words!
+        // Bilingual mode: retain both Tamil and English words, clean special symbols
         let text = (clone.innerText || clone.textContent || '')
           .replace(/\[\s*Image\s*[^\]]*\]/gi, '')
           .replace(/https?:\/\/\S+/g, '')
           .replace(/படம்\s*\d+[\.\d]*[a-z]*/gi, '')
+          .replace(/&/g, ' மற்றும் ')
           .replace(/[•★⭐📌\<\>\|]/g, ' ')
           .replace(/\s+/g, ' ')
           .trim();
@@ -14531,7 +14550,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
 
       function splitTextIntoSpeechChunks(text, maxLen) {
         if (!text) return [];
-        const limit = maxLen || 120;
+        const limit = maxLen || 105;
         // Split by sentence terminators not between digits
         const rawParts = text.split(/(?<!\d)[.?!;\n।]+(?!\d)/);
         const chunks = [];
@@ -14566,55 +14585,99 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         return chunks.filter(function (c) { return c.length > 0; });
       }
 
-      function playNextDirectAudioChunk() {
+      function ensureDirectAudioElement() {
+        if (!directAudioPlayer) {
+          directAudioPlayer = document.getElementById('directCloudAudioEl');
+        }
+        if (!directAudioPlayer) {
+          directAudioPlayer = document.createElement('audio');
+          directAudioPlayer.id = 'directCloudAudioEl';
+          directAudioPlayer.style.display = 'none';
+          document.body.appendChild(directAudioPlayer);
+        }
+        directAudioPlayer.setAttribute('referrerpolicy', 'no-referrer');
+        try { directAudioPlayer.referrerPolicy = 'no-referrer'; } catch (e) {}
+        return directAudioPlayer;
+      }
+
+      function playNextDirectAudioChunk(endpointIdx) {
         if (!activeSpeechState || activeSpeechState.paused) return;
         if (activeSpeechState.index >= activeSpeechState.chunks.length) {
           stopCardAudio(true);
           return;
         }
 
-        if (!navigator.onLine) {
+        if (navigator.onLine === false) {
           stopCardAudio(false);
           alert('⚠️ இணைய இணைப்பு இல்லை. நேரடி குரல் வாசிப்பிற்கு இணைய இணைப்பு அவசியம்.');
           return;
         }
 
         const chunkText = activeSpeechState.chunks[activeSpeechState.index];
-        const audioUrl = getDirectAudioUrl(chunkText);
+        const urls = getDirectAudioUrls(chunkText);
+        const tryIdx = endpointIdx || 0;
 
-        if (!directAudioPlayer) {
-          directAudioPlayer = new Audio();
+        if (tryIdx >= urls.length) {
+          // If all cloud endpoints failed for this chunk, advance to next chunk if possible
+          activeSpeechState.index++;
+          if (activeSpeechState.index < activeSpeechState.chunks.length) {
+            playNextDirectAudioChunk(0);
+          } else {
+            stopCardAudio(true);
+          }
+          return;
         }
 
-        directAudioPlayer.src = audioUrl;
-        try { directAudioPlayer.playbackRate = speechRate; } catch (e) {}
+        const player = ensureDirectAudioElement();
+        player.onended = null;
+        player.onerror = null;
+        player.src = urls[tryIdx];
+        try { player.playbackRate = speechRate; } catch (e) {}
 
-        directAudioPlayer.onended = function () {
+        player.onended = function () {
           if (!activeSpeechState || activeSpeechState.paused) return;
           activeSpeechState.index++;
-          playNextDirectAudioChunk();
+          playNextDirectAudioChunk(0);
         };
 
-        directAudioPlayer.onerror = function (e) {
-          console.warn('Direct audio stream failed / offline');
-          stopCardAudio(false);
-          alert('⚠️ இணைய இணைப்பு துண்டிக்கப்பட்டது அல்லது ஆடியோ சேவை கிடைக்கவில்லை. குரல் வாசிப்பு நிறுத்தப்பட்டது.');
+        player.onerror = function () {
+          if (!activeSpeechState || activeSpeechState.paused) return;
+          if (navigator.onLine === false) {
+            stopCardAudio(false);
+            alert('⚠️ இணைய இணைப்பு துண்டிக்கப்பட்டது. குரல் வாசிப்பு நிறுத்தப்பட்டது.');
+            return;
+          }
+          // Try next endpoint mirror automatically
+          playNextDirectAudioChunk(tryIdx + 1);
         };
 
-        // Pre-buffer next chunk for smooth gapless playback
-        if (activeSpeechState.index + 1 < activeSpeechState.chunks.length) {
+        // Pre-buffer next chunk using a referrer-less audio object
+        if (tryIdx === 0 && activeSpeechState.index + 1 < activeSpeechState.chunks.length) {
           try {
-            const nextUrl = getDirectAudioUrl(activeSpeechState.chunks[activeSpeechState.index + 1]);
-            const prefetch = new Audio();
-            prefetch.src = nextUrl;
+            const nextUrls = getDirectAudioUrls(activeSpeechState.chunks[activeSpeechState.index + 1]);
+            const prefetch = document.createElement('audio');
+            prefetch.setAttribute('referrerpolicy', 'no-referrer');
+            try { prefetch.referrerPolicy = 'no-referrer'; } catch (e) {}
+            prefetch.preload = 'auto';
+            prefetch.src = nextUrls[0];
           } catch (err) {}
         }
 
-        const playPromise = directAudioPlayer.play();
+        const playPromise = player.play();
         if (playPromise !== undefined) {
           playPromise.catch(function (err) {
-            console.warn('Direct audio play error:', err);
-            stopCardAudio(false);
+            if (!activeSpeechState || activeSpeechState.paused) return;
+            if (navigator.onLine === false) {
+              stopCardAudio(false);
+              alert('⚠️ இணைய இணைப்பு இல்லை. நேரடி குரல் வாசிப்பிற்கு இணைய இணைப்பு அவசியம்.');
+              return;
+            }
+            // Retry with next mirror
+            if (tryIdx + 1 < urls.length) {
+              playNextDirectAudioChunk(tryIdx + 1);
+            } else {
+              stopCardAudio(false);
+            }
           });
         }
       }
@@ -14637,9 +14700,10 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
             const _lb = document.getElementById('audioReaderLabel'); if (_lb) _lb.textContent = 'இடைநிறுத்து';
 
             if (directAudioPlayer && directAudioPlayer.src) {
-              directAudioPlayer.play().catch(function () { playNextDirectAudioChunk(); });
+              try { directAudioPlayer.playbackRate = speechRate; } catch (e) {}
+              directAudioPlayer.play().catch(function () { playNextDirectAudioChunk(0); });
             } else {
-              playNextDirectAudioChunk();
+              playNextDirectAudioChunk(0);
             }
           } else {
             // Pause
@@ -14664,7 +14728,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
         // 2. New card or fresh start
         stopCardAudio(false);
 
-        if (!navigator.onLine) {
+        if (navigator.onLine === false) {
           alert('⚠️ இணைய இணைப்பு இல்லை. நேரடி ஆடியோ குரல் வாசிப்பிற்கு இணைய இணைப்பு அவசியம்.');
           return;
         }
@@ -14675,7 +14739,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           return;
         }
 
-        const chunks = splitTextIntoSpeechChunks(cardText, 115);
+        const chunks = splitTextIntoSpeechChunks(cardText, 105);
         if (chunks.length === 0) return;
 
         activeSpeechState = {
@@ -14700,7 +14764,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           btnAudioReader.classList.add('bg-amber-400', 'text-emerald-950');
         }
 
-        playNextDirectAudioChunk();
+        playNextDirectAudioChunk(0);
       }
 
       if (btnAudioReader) {
@@ -14710,7 +14774,9 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           } else {
             const activeSec = document.getElementById(currentTarget) || document.querySelector('.page-section[style*="display: block"]');
             if (!activeSec) return;
-            const firstCard = activeSec.querySelector('.page-card:not([data-no-bookmark="1"])') || activeSec.querySelector('.page-card');
+            const firstCard = activeSec.classList.contains('page-card')
+              ? activeSec
+              : (activeSec.querySelector('.page-card:not([data-no-bookmark="1"])') || activeSec.querySelector('.page-card'));
             if (firstCard) {
               const audioBtn = firstCard.querySelector('.card-audio-btn');
               if (audioBtn) {
@@ -14796,14 +14862,17 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
             if (activeSpeechState && activeSpeechState.paused) {
               // Resume
               activeSpeechState.paused = false;
-              if (directAudioPlayer) directAudioPlayer.play();
+              if (directAudioPlayer) {
+                try { directAudioPlayer.playbackRate = speechRate; } catch (err) {}
+                directAudioPlayer.play().catch(function () { playNextDirectAudioChunk(0); });
+              }
               if (selectionAudioIcon) selectionAudioIcon.textContent = '⏸️';
               if (selectionAudioText) selectionAudioText.textContent = 'இடைநிறுத்து';
             } else {
               // Pause
               if (activeSpeechState) activeSpeechState.paused = true;
               if (directAudioPlayer) {
-                try { directAudioPlayer.pause(); } catch (e) {}
+                try { directAudioPlayer.pause(); } catch (err) {}
               }
               if (selectionAudioIcon) selectionAudioIcon.textContent = '▶️';
               if (selectionAudioText) selectionAudioText.textContent = 'தொடர்க';
@@ -14814,7 +14883,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           // Start playing selection
           stopCardAudio(false);
 
-          if (!navigator.onLine) {
+          if (navigator.onLine === false) {
             alert('⚠️ இணைய இணைப்பு இல்லை. நேரடி ஆடியோ குரல் வாசிப்பிற்கு இணைய இணைப்பு அவசியம்.');
             return;
           }
@@ -14822,11 +14891,12 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
           const cleaned = currentSelectionText
             .replace(/\[\s*Image\s*[^\]]*\]/gi, '')
             .replace(/https?:\/\/\S+/g, '')
+            .replace(/&/g, ' மற்றும் ')
             .replace(/[•★⭐📌\<\>\|]/g, ' ')
             .replace(/\s+/g, ' ')
             .trim();
 
-          const chunks = splitTextIntoSpeechChunks(cleaned, 115);
+          const chunks = splitTextIntoSpeechChunks(cleaned, 105);
           if (chunks.length === 0) return;
 
           isSelectionPlaying = true;
@@ -14842,7 +14912,7 @@ ightarrow 1.5	ext{ kg m}^{-2}$). ஆனால் கடல் சூழ்நி
             isSelection: true
           };
 
-          playNextDirectAudioChunk();
+          playNextDirectAudioChunk(0);
         });
       }
 
